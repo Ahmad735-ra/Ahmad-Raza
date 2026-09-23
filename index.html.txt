@@ -26,7 +26,7 @@
 
     <section id="about">
         <h2>About Me</h2>
-        <p>I am a passionate creator building clean and responsive web applications.</p>
+        <p>I hold DAE Civil Techanology i also hold certification CCNA,Routing Switching and linux.</p>
     </section>
 
     <section id="projects">

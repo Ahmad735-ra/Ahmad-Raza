@@ -1,50 +1,940 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Portfolio</title>
+    <title>Ahmad Raza | Civil Site Engineer & Networking Specialist</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            950: '#070a12',
+                            900: '#0b0f19',
+                            800: '#111827',
+                            700: '#1f2937',
+                            600: '#374151'
+                        },
+                        brand: {
+                            emerald: '#10b981',
+                            cyan: '#06b6d4',
+                            amber: '#f59e0b',
+                            indigo: '#6366f1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .glass-card {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-nav {
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
-    <link rel="stylesheet" href="style.css">
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-border-glow {
+            position: relative;
+        }
+        .gradient-border-glow::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #10b981, #06b6d4, #f59e0b);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0.4;
+            transition: opacity 0.3s ease;
+        }
+        .gradient-border-glow:hover::after {
+            opacity: 0.9;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <nav>
-            <h1>My Portfolio</h1>
-            <ul>
-                <img src="Ahmadraz.jpeg" alt="Ahmad Raza" style="max-width::200px;height:100px: auto;" image-rendering:high-quality;>
-                <li><a href="#about">About</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#contact">Contact</a></li>
-                
-             </ul>
-        </nav>
+<body class="bg-dark-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-emerald selection:text-dark-950">
+
+    <!-- Sticky Header Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-40 glass-nav transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo & Title -->
+                <a href="#hero" class="flex items-center space-x-3 group">
+                    <img src="Ahmadraz.jpeg" onerror="this.src='https://placehold.co/100x100/10b981/ffffff?text=AR'" alt="Ahmad Raza Avatar" class="w-11 h-11 rounded-full object-cover border-2 border-emerald-400 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                    <div class="flex flex-col">
+                        <span class="font-extrabold text-lg tracking-tight text-white group-hover:text-emerald-400 transition-colors">AHMAD RAZA</span>
+                        <span class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                            Civil Engineer & IT Specialist
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Desktop Nav Links -->
+                <nav class="hidden md:flex items-center space-x-7">
+                    <a href="#about" class="text-sm font-medium text-slate-300 hover:text-emerald-400 transition-colors">About</a>
+                    <a href="#skills" class="text-sm font-medium text-slate-300 hover:text-emerald-400 transition-colors">Skills</a>
+                    <a href="#projects" class="text-sm font-medium text-slate-300 hover:text-emerald-400 transition-colors">Projects Gallery</a>
+                    <a href="#contact" class="text-sm font-medium text-slate-300 hover:text-emerald-400 transition-colors">Contact</a>
+                    
+                    <button onclick="openAddProjectModal()" class="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition-all flex items-center gap-2 hover:shadow-lg hover:shadow-emerald-500/10">
+                        <i class="fa-solid fa-plus text-xs"></i> Add Project
+                    </button>
+                </nav>
+
+                <!-- Mobile Menu Toggle Button -->
+                <div class="md:hidden flex items-center gap-3">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2.5 rounded-xl bg-dark-800 text-slate-300 hover:text-white border border-slate-700/50">
+                        <i class="fa-solid fa-bars text-xl" id="menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-dark-900/95 border-b border-slate-800 px-4 pt-3 pb-6 space-y-3">
+            <a href="#about" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-dark-800 hover:text-emerald-400 text-base font-medium">About & Credentials</a>
+            <a href="#skills" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-dark-800 hover:text-emerald-400 text-base font-medium">Technical Skills</a>
+            <a href="#projects" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-dark-800 hover:text-emerald-400 text-base font-medium">Projects Gallery</a>
+            <a href="#contact" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-dark-800 hover:text-emerald-400 text-base font-medium">Contact Me</a>
+            <button onclick="openAddProjectModal(); toggleMobileMenu();" class="w-full mt-2 px-4 py-3 rounded-xl bg-emerald-500 text-dark-950 font-bold text-center flex items-center justify-center gap-2 shadow-lg">
+                <i class="fa-solid fa-plus"></i> Add New Project
+            </button>
+        </div>
     </header>
 
-    <section id="hero">
-        <h2>Welcome to My Website</h2>
-        <p>Showcasing my skills, projects, and professional journey.</p>
-        <button id="clickBtn">Click Me</button>
+    <!-- Hero Section -->
+    <section id="hero" class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
+        <!-- Glowing Accent Spheres -->
+        <div class="absolute top-1/4 left-10 w-[450px] h-[450px] bg-emerald-500/10 rounded-full blur-[130px] pointer-events-none"></div>
+        <div class="absolute top-1/3 right-10 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Hero Left Column -->
+                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-xs font-semibold text-emerald-400">
+                        <i class="fa-solid fa-shield-halved"></i> NAVTTC Assessor & Certified Professional
+                    </div>
+
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white">
+                        Hi, I'm <span class="gradient-text">Ahmad Raza</span>
+                    </h1>
+
+                    <p class="text-lg sm:text-xl text-slate-300 max-w-2xl font-light leading-relaxed mx-auto lg:mx-0">
+                        Civil Site Engineer & IT / Network Infrastructure Specialist. Combining physical civil construction site expertise with advanced Cisco networking and Linux server systems.
+                    </p>
+
+                    <!-- Credentials Badges -->
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-2.5 pt-1">
+                        <span class="px-3 py-1.5 rounded-lg bg-dark-800 border border-slate-700/80 text-xs font-semibold text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-building text-amber-400"></i> DAE Civil Technology
+                        </span>
+                        <span class="px-3 py-1.5 rounded-lg bg-dark-800 border border-slate-700/80 text-xs font-semibold text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-network-wired text-emerald-400"></i> CCNA Routing & Switching
+                        </span>
+                        <span class="px-3 py-1.5 rounded-lg bg-dark-800 border border-slate-700/80 text-xs font-semibold text-slate-300 flex items-center gap-2">
+                            <i class="fa-brands fa-linux text-cyan-400"></i> Enterprise Linux Systems
+                        </span>
+                        <span class="px-3 py-1.5 rounded-lg bg-dark-800 border border-slate-700/80 text-xs font-semibold text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-check text-indigo-400"></i> NAVTTC Certified Assessor
+                        </span>
+                    </div>
+
+                    <!-- Call to Actions -->
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 pt-4">
+                        <a href="#projects" class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-dark-950 font-extrabold shadow-lg shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-folder-open"></i> Explore Projects
+                        </a>
+                        <a href="#contact" class="px-8 py-3.5 rounded-xl bg-dark-800 hover:bg-dark-700 text-slate-200 border border-slate-700 font-bold transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane text-emerald-400"></i> Contact Me
+                        </a>
+                        <button onclick="openAddProjectModal()" class="px-6 py-3.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-semibold transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus-circle"></i> Add Project
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hero Right Column (Profile Image) -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="relative w-full max-w-sm sm:max-w-md">
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-emerald-500 via-cyan-500 to-amber-500 rounded-3xl blur-xl opacity-60 animate-pulse"></div>
+                        <div class="relative rounded-3xl bg-dark-800 border border-slate-700/80 p-3 shadow-2xl overflow-hidden">
+                            <!-- Display Profile Picture 'Ahmadraz.jpeg' -->
+                            <img src="Ahmadraz.jpeg" 
+                                 onerror="this.src='https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80'" 
+                                 alt="Ahmad Raza - Civil Engineer & IT Specialist" 
+                                 class="w-full h-96 sm:h-[420px] object-cover rounded-2xl shadow-inner">
+                            
+                            <!-- Overlay Badges -->
+                            <div class="absolute bottom-6 left-6 right-6 glass-card p-3.5 rounded-xl flex items-center justify-between border border-slate-600/50 shadow-xl">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">
+                                        <i class="fa-solid fa-briefcase text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase font-semibold">Dual Expertise</div>
+                                        <div class="text-sm font-bold text-white">Civil Site & IT Infrastructure</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </section>
 
-    <section id="about">
-        <h2>About Me</h2>
-        <p>I hold DAE Civil Techanology i also hold certification CCNA,Routing Switching and linux.</p>
-</section>
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-dark-900/60 border-y border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <div class="lg:col-span-5">
+                    <div class="relative rounded-2xl overflow-hidden border border-slate-700 shadow-2xl group">
+                        <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80" 
+                             alt="Engineering inspection site" 
+                             class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-950 via-dark-950/40 to-transparent"></div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <span class="text-emerald-400 font-bold text-xs tracking-widest uppercase">Professional Summary</span>
+                            <h3 class="text-white text-xl font-bold mt-1">Bridging Physical Infrastructure & IT Networks</h3>
+                        </div>
+                    </div>
+                </div>
 
-    <section id="projects">
-        <h2>Projects</h2>
-        <p>Here are some of the works I have done.</p>
+                <div class="lg:col-span-7 space-y-6">
+                    <div>
+                        <span class="text-emerald-400 font-bold text-xs uppercase tracking-widest">About Ahmad Raza</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Versatile Engineer & Technical Assessor</h2>
+                    </div>
+
+                    <p class="text-slate-300 leading-relaxed">
+                        I am <strong class="text-white">Ahmad Raza</strong>, an accomplished professional equipped with a <span class="text-amber-400 font-semibold">Diploma of Associate Engineering (DAE Civil)</span> and recognized as a qualified <span class="text-emerald-400 font-semibold">NAVTTC Assessor</span>. Alongside civil site supervision and drafting, I possess certified expertise in <span class="text-cyan-400 font-semibold">Cisco CCNA Networking</span> and enterprise Linux systems.
+                    </p>
+
+                    <p class="text-slate-400 leading-relaxed text-sm">
+                        My dual skill set allows me to seamlessly manage construction site operations, cost estimation, and AutoCAD architectural drafting, while simultaneously designing IT network topologies, routing/switching configurations, and securing Linux enterprise servers.
+                    </p>
+
+                    <!-- Key Pillars -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                        <div class="p-4 rounded-xl bg-dark-800 border border-slate-800">
+                            <div class="text-amber-400 text-xl font-extrabold mb-1"><i class="fa-solid fa-compass-drafting mr-2"></i>Civil Site</div>
+                            <div class="text-xs text-slate-400">Site Supervision, Architectural Drafting & Estimation</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-dark-800 border border-slate-800">
+                            <div class="text-emerald-400 text-xl font-extrabold mb-1"><i class="fa-solid fa-network-wired mr-2"></i>CCNA Net</div>
+                            <div class="text-xs text-slate-400">Routing, Switching, OSPF, Subnetting & Topology</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-dark-800 border border-slate-800">
+                            <div class="text-cyan-400 text-xl font-extrabold mb-1"><i class="fa-brands fa-linux mr-2"></i>Linux Admin</div>
+                            <div class="text-xs text-slate-400">Rocky Linux, Server Security & Wireshark Audit</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </section>
 
-    <footer id="contact">
-        <p>Get in touch: ggahmadraza735@gmail.com</p>
-        <p>Phone Number:+923043143735</p>
-        <p>Phone Number:+923217833036</p>
-        <p> Address : 535E.B Tehsil , Destrict Vehari, Punjab, Pakistan</p>
-        
-</footer>
+    <!-- Skills Grid Section -->
+    <section id="skills" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-emerald-400 font-bold text-xs uppercase tracking-widest">Technical Competencies</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">Core Skills & Specializations</h2>
+                <p class="text-slate-400 mt-3 text-sm sm:text-base">Comprehensive breakdown across Civil Engineering, Site Supervision, and Networking/IT Infrastructure.</p>
+            </div>
 
-    <script src="script.js"></script>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Skill Category 1: Civil Engineering -->
+                <div class="glass-card p-8 rounded-2xl border border-slate-700/60 shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl">
+                            <i class="fa-solid fa-hard-hat"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Civil Engineering & Construction</h3>
+                            <p class="text-xs text-slate-400">Site Management, Drafting & Surveying</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm font-medium mb-1">
+                                <span class="text-slate-200">Construction Site Supervision & Quality Control</span>
+                                <span class="text-amber-400">95%</span>
+                            </div>
+                            <div class="w-full bg-dark-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                                <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full w-[95%]"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm font-medium mb-1">
+                                <span class="text-slate-200">AutoCAD 2D/3D & Architectural Drafting</span>
+                                <span class="text-amber-400">90%</span>
+                            </div>
+                            <div class="w-full bg-dark-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                                <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full w-[90%]"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm font-medium mb-1">
+                                <span class="text-slate-200">Cost Estimation & Quantity Surveying (BOQ)</span>
+                                <span class="text-amber-400">88%</span>
+                            </div>
+                            <div class="w-full bg-dark-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                                <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full w-[88%]"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm font-medium mb-1">
+                                <span class="text-slate-200">GIS Mapping & Topography Channel Design</span>
+                                <span class="text-amber-400">85%</span>
+                            </div>
+                            <div class="w-full bg-dark-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                                <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full w-[85%]"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-slate-800 flex flex-wrap gap-2">
+                        <span class="px-2.5 py-1 rounded-md bg-dark-900 text-slate-300 text-xs border border-slate-800">AutoCAD</span>
+                        <span class="px-2.5 py-1 rounded-md bg-dark-900 text-slate-300 text-xs border border-slate-800">Civil 3D</span>
+                        <span class="px-2.5 py-1 rounded-md bg-dark-900 text-slate-300 text-xs border border-slate-800">Site Management</span>
+                        <span class="px-2.5 py-1 rounded-md bg-dark-900 text-slate-300 text-xs border border-slate-800">NAVTTC Assessment</span>
+                        <span class="px-2.5 py-1 rounded-md bg-dark-900 text-slate-300 text-xs border border-slate-800">Surveying</span>
+                    </div>
+                </div>
+
+                <!-- Skill Category 2: Networking & Systems -->
+                <div class="glass-card p-8 rounded-2xl border border-slate-700/60 shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
+                            <i class="fa-solid fa-server"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Networking & IT Infrastructure</h3>
+                            <p class="text-xs text-slate-400">Cisco CCNA, Linux & Security Auditing</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm font-medium mb-1">
+                                <span class="text-slate-200">CCNA Routing & Switching (OSPF, VLANs, IPv4/IPv6)</span>
+                                <span class="text-emerald-400">92%</span>
+                            </div>
+                            <div class="w-full bg-dark-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                                <div class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full rounded-full w-[92%]"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm font-medium mb-1">
+                                <span class="text-slate-200">Cisco Packet Tracer Topology Modeling</span>
+                                <span class="text-emerald-400">95%</span>
+                            </div>
+                            <div class="w-full bg-dark-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                                <div class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full rounded-full w-[95%]"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm font-medium mb-1">
+                                <span class="text-slate-200">Rocky / Enterprise Linux System Administration</span>
+                                <span class="text-emerald-400">88%</span>
+                            </div>
+                            <div class="w-full bg-dark-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                                <div class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full rounded-full w-[88%]"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm font-medium mb-1">
+                                <span class="text-slate-200">Wireshark Packet Analysis & Subnetting</span>
+                                <span class="text-emerald-400">90%</span>
+                            </div>
+                            <div class="w-full bg-dark-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                                <div class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full rounded-full w-[90%]"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-slate-800 flex flex-wrap gap-2">
+                        <span class="px-2.5 py-1 rounded-md bg-dark-900 text-slate-300 text-xs border border-slate-800">Packet Tracer</span>
+                        <span class="px-2.5 py-1 rounded-md bg-dark-900 text-slate-300 text-xs border border-slate-800">Wireshark</span>
+                        <span class="px-2.5 py-1 rounded-md bg-dark-900 text-slate-300 text-xs border border-slate-800">Rocky Linux</span>
+                        <span class="px-2.5 py-1 rounded-md bg-dark-900 text-slate-300 text-xs border border-slate-800">OSPF & BGP</span>
+                        <span class="px-2.5 py-1 rounded-md bg-dark-900 text-slate-300 text-xs border border-slate-800">DHCP/DNS</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Gallery Section -->
+    <section id="projects" class="py-20 bg-dark-900/60 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+                <div>
+                    <span class="text-emerald-400 font-bold text-xs uppercase tracking-widest">Portfolio Showcase</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Featured Projects & Designs</h2>
+                    <p class="text-slate-400 mt-2 text-sm sm:text-base max-w-xl">
+                        Filter through civil structural blueprints, site execution models, Cisco network topologies, and Linux server setups.
+                    </p>
+                </div>
+
+                <button onclick="openAddProjectModal()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-dark-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-base"></i> Add Custom Project
+                </button>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex flex-wrap items-center gap-2.5 mb-10 pb-2 border-b border-slate-800" id="filter-container">
+                <button onclick="filterProjects('all')" class="filter-btn active px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-emerald-500 text-dark-950 shadow-md">
+                    All Projects (<span id="count-all">0</span>)
+                </button>
+                <button onclick="filterProjects('civil')" class="filter-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-dark-800 text-slate-300 hover:bg-dark-700 border border-slate-700/60">
+                    Civil Engineering (<span id="count-civil">0</span>)
+                </button>
+                <button onclick="filterProjects('networking')" class="filter-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-dark-800 text-slate-300 hover:bg-dark-700 border border-slate-700/60">
+                    Networking & IT (<span id="count-networking">0</span>)
+                </button>
+                <button onclick="filterProjects('other')" class="filter-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-dark-800 text-slate-300 hover:bg-dark-700 border border-slate-700/60">
+                    Other Projects (<span id="count-other">0</span>)
+                </button>
+            </div>
+
+            <!-- Projects Grid (Injected via JS) -->
+            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Dynamically populated -->
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                
+                <!-- Contact Info -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div>
+                        <span class="text-emerald-400 font-bold text-xs uppercase tracking-widest">Get In Touch</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Let's Collaborate</h2>
+                        <p class="text-slate-400 mt-3 text-sm leading-relaxed">
+                            Need a site engineer, AutoCAD drafting specialist, or network topology design expert? Send a direct message below.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4 pt-2">
+                        <div class="flex items-start gap-4 p-4 rounded-xl bg-dark-800 border border-slate-700/60">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-envelope text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400 uppercase font-medium">Email Address</div>
+                                <div class="text-sm font-semibold text-white">ahmadraza.eng@example.com</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-4 rounded-xl bg-dark-800 border border-slate-700/60">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-location-dot text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400 uppercase font-medium">Location</div>
+                                <div class="text-sm font-semibold text-white">Pakistan (Open to On-site & Remote)</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-4 rounded-xl bg-dark-800 border border-slate-700/60">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-id-badge text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400 uppercase font-medium">Certification status</div>
+                                <div class="text-sm font-semibold text-emerald-400">NAVTTC Assessor | CCNA Certified</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="lg:col-span-7">
+                    <form id="contact-form" onsubmit="handleContactSubmit(event)" class="glass-card p-8 rounded-2xl border border-slate-700/60 shadow-xl space-y-5">
+                        <h3 class="text-xl font-bold text-white mb-1">Send Ahmad a Direct Message</h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Your Name *</label>
+                                <input type="text" required placeholder="e.g. John Doe" class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Your Email *</label>
+                                <input type="email" required placeholder="john@example.com" class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm transition-colors">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Service Needed *</label>
+                            <select class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500 text-sm transition-colors">
+                                <option value="Civil Engineering / Site Supervision">Civil Site Supervision / Drafting</option>
+                                <option value="Networking & Topology">CCNA Networking / Packet Tracer Lab</option>
+                                <option value="Linux Administration">Rocky Linux Administration & Security</option>
+                                <option value="NAVTTC Consultation">NAVTTC Assessment Consultation</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Message Details *</label>
+                            <textarea required rows="4" placeholder="Type your project message here..." class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm transition-colors"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-dark-950 font-extrabold shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark-900 border-t border-slate-800 py-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <img src="Ahmadraz.jpeg" onerror="this.src='https://placehold.co/100x100/10b981/ffffff?text=AR'" alt="Avatar" class="w-8 h-8 rounded-full object-cover">
+                <span class="text-sm font-semibold text-slate-300">Ahmad Raza &copy; 2026. All rights reserved.</span>
+            </div>
+
+            <div class="flex space-x-6 text-slate-400 text-lg">
+                <a href="#" class="hover:text-emerald-400 transition-colors"><i class="fa-brands fa-linkedin"></i></a>
+                <a href="#" class="hover:text-emerald-400 transition-colors"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="hover:text-emerald-400 transition-colors"><i class="fa-solid fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-950/90 backdrop-blur-md hidden transition-all duration-300">
+        <div class="relative w-full max-w-4xl bg-dark-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-dark-900/80">
+                <span id="lightbox-category" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Category</span>
+                <button onclick="closeLightbox()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700/50 transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6">
+                <div class="rounded-xl overflow-hidden border border-slate-700/80 max-h-[450px] bg-black/50 flex justify-center items-center">
+                    <img id="lightbox-image" src="" alt="Project Detail" class="w-full h-auto object-contain max-h-[450px]">
+                </div>
+
+                <div>
+                    <h3 id="lightbox-title" class="text-2xl font-bold text-white mb-2">Project Title</h3>
+                    <p id="lightbox-description" class="text-slate-300 text-sm leading-relaxed mb-4">Description content...</p>
+                    
+                    <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-700/60" id="lightbox-tags">
+                        <!-- Tags inserted dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-dark-900/80 border-t border-slate-700 flex justify-end">
+                <button onclick="closeLightbox()" class="px-5 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold text-sm transition-colors">
+                    Close Preview
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Project Modal -->
+    <div id="add-project-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-950/90 backdrop-blur-md hidden transition-all duration-300">
+        <div class="relative w-full max-w-lg bg-dark-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-dark-900/80">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-emerald-400 text-lg"></i>
+                    <h3 class="text-lg font-bold text-white">Add New Project to Portfolio</h3>
+                </div>
+                <button onclick="closeAddProjectModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700/50 transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form id="add-project-form" onsubmit="handleAddProjectSubmit(event)" class="p-6 overflow-y-auto space-y-4 text-sm">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Project Title *</label>
+                    <input type="text" id="new-title" required placeholder="e.g. Commercial Complex 3D Model" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Category *</label>
+                    <select id="new-category" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                        <option value="civil">Civil Engineering</option>
+                        <option value="networking">Networking & IT</option>
+                        <option value="other">Other Projects</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Project Image *</label>
+                    <div class="space-y-2">
+                        <input type="file" id="new-file-input" accept="image/*" class="w-full text-slate-400 text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30 cursor-pointer">
+                        <span class="text-xs text-slate-500 font-bold block text-center">OR</span>
+                        <input type="url" id="new-url-input" placeholder="Image URL (e.g. https://images.unsplash.com/...)" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Description *</label>
+                    <textarea id="new-description" required rows="3" placeholder="Describe key achievements or site details..." class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Tags (Comma Separated)</label>
+                    <input type="text" id="new-tags" placeholder="AutoCAD, Site Supervision, CCNA" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="pt-4 border-t border-slate-700 flex justify-end gap-3">
+                    <button type="button" onclick="closeAddProjectModal()" class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-dark-950 font-extrabold flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Save Project
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-3 pointer-events-none"></div>
+
+    <script>
+        let projectsData = [
+            {
+                id: 1,
+                title: "Architectural 3D Model & Site Supervision",
+                category: "civil",
+                categoryLabel: "Civil Engineering",
+                image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+                description: "Complete AutoCAD drafting, 3D structural elevation render, and active site supervision for modern multi-story building project.",
+                tags: ["AutoCAD 3D", "Site Supervision", "Civil Engineering"]
+            },
+            {
+                id: 2,
+                title: "Cisco Multi-Site Enterprise Routing Topology",
+                category: "networking",
+                categoryLabel: "Networking & IT",
+                image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80",
+                description: "Design and deployment of multi-VLAN topology featuring OSPF routing, DHCP servers, and redundant link failovers using Packet Tracer.",
+                tags: ["CCNA", "Packet Tracer", "OSPF", "VLAN"]
+            },
+            {
+                id: 3,
+                title: "High-Rise Highway & Flyover Construction",
+                category: "civil",
+                categoryLabel: "Civil Engineering",
+                image: "https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80",
+                description: "Structural surveying, concrete quality inspection, and BOQ estimation for urban highway infrastructure extension.",
+                tags: ["BOQ", "Quality Control", "Surveying"]
+            },
+            {
+                id: 4,
+                title: "Server Rack & Network Infrastructure Setup",
+                category: "networking",
+                categoryLabel: "Networking & IT",
+                image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80",
+                description: "Enterprise physical server rack organization, patch panel termination, Wireshark traffic analysis, and firewall hardening.",
+                tags: ["Patch Panels", "Wireshark", "Network Security"]
+            },
+            {
+                id: 5,
+                title: "Rocky Linux Web & Enterprise Domain Server",
+                category: "networking",
+                categoryLabel: "Networking & IT",
+                image: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?auto=format&fit=crop&w=800&q=80",
+                description: "Hardened Linux server configuration with active SSH keys, UFW rules, Apache Web Server, and custom Bash automation scripts.",
+                tags: ["Rocky Linux", "SysAdmin", "Bash Scripting"]
+            },
+            {
+                id: 6,
+                title: "Mobile App & UI Engineering Wireframes",
+                category: "other",
+                categoryLabel: "Other Projects",
+                image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80",
+                description: "Interface layout drafting and prototype workflow for engineering site data management mobile application.",
+                tags: ["UI Design", "Workflow", "Prototypes"]
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function renderProjects() {
+            const grid = document.getElementById('projects-grid');
+            grid.innerHTML = '';
+
+            const list = currentFilter === 'all' 
+                ? projectsData 
+                : projectsData.filter(p => p.category === currentFilter);
+
+            updateCounts();
+
+            if (list.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-600"></i>
+                        <p class="text-base">No projects found in this category.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach(project => {
+                const card = document.createElement('div');
+                card.className = "group glass-card rounded-2xl border border-slate-700/60 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col hover:-translate-y-1 gradient-border-glow";
+
+                const tagBadges = project.tags.map(t => 
+                    `<span class="px-2 py-0.5 rounded bg-dark-900 border border-slate-700 text-slate-300 text-[10px] font-medium">${t}</span>`
+                ).join('');
+
+                card.innerHTML = `
+                    <div class="relative h-52 overflow-hidden bg-dark-900 cursor-pointer" onclick="openLightbox(${project.id})">
+                        <img src="${project.image}" onerror="this.src='https://placehold.co/600x400/111827/ffffff?text=Project+Image'" alt="${project.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-950 via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute top-3 right-3 bg-dark-950/80 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-emerald-400 border border-emerald-500/30">
+                            ${project.categoryLabel}
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-dark-950/50 backdrop-blur-sm transition-opacity">
+                            <span class="px-4 py-2 rounded-xl bg-emerald-500 text-dark-950 font-bold text-xs flex items-center gap-2">
+                                <i class="fa-solid fa-expand"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">${project.title}</h3>
+                            <p class="text-slate-400 text-xs leading-relaxed line-clamp-3 mb-4">${project.description}</p>
+                        </div>
+
+                        <div>
+                            <div class="flex flex-wrap gap-1.5 mb-4">
+                                ${tagBadges}
+                            </div>
+
+                            <button onclick="openLightbox(${project.id})" class="w-full py-2 rounded-xl bg-dark-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-eye text-emerald-400"></i> Full View
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function updateCounts() {
+            document.getElementById('count-all').textContent = projectsData.length;
+            document.getElementById('count-civil').textContent = projectsData.filter(p => p.category === 'civil').length;
+            document.getElementById('count-networking').textContent = projectsData.filter(p => p.category === 'networking').length;
+            document.getElementById('count-other').textContent = projectsData.filter(p => p.category === 'other').length;
+        }
+
+        function filterProjects(cat) {
+            currentFilter = cat;
+            const buttons = document.querySelectorAll('#filter-container .filter-btn');
+            buttons.forEach(btn => {
+                btn.className = "filter-btn px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-dark-800 text-slate-300 hover:bg-dark-700 border border-slate-700/60";
+            });
+            event.currentTarget.className = "filter-btn active px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-emerald-500 text-dark-950 shadow-md";
+            renderProjects();
+        }
+
+        // Lightbox Handler
+        function openLightbox(id) {
+            const p = projectsData.find(x => x.id === id);
+            if(!p) return;
+
+            document.getElementById('lightbox-title').textContent = p.title;
+            document.getElementById('lightbox-category').textContent = p.categoryLabel;
+            document.getElementById('lightbox-image').src = p.image;
+            document.getElementById('lightbox-description').textContent = p.description;
+
+            document.getElementById('lightbox-tags').innerHTML = p.tags.map(t => 
+                `<span class="px-3 py-1 rounded-lg bg-dark-900 border border-slate-700 text-emerald-400 text-xs font-medium">${t}</span>`
+            ).join('');
+
+            document.getElementById('lightbox-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Add Project Modal Controls
+        function openAddProjectModal() {
+            document.getElementById('add-project-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddProjectModal() {
+            document.getElementById('add-project-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+            document.getElementById('add-project-form').reset();
+        }
+
+        function handleAddProjectSubmit(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('new-title').value;
+            const category = document.getElementById('new-category').value;
+            const description = document.getElementById('new-description').value;
+            const tagsInput = document.getElementById('new-tags').value;
+            const fileInput = document.getElementById('new-file-input');
+            const urlInput = document.getElementById('new-url-input').value;
+
+            let categoryLabel = "Civil Engineering";
+            if(category === 'networking') categoryLabel = "Networking & IT";
+            if(category === 'other') categoryLabel = "Other Projects";
+
+            const tagsArray = tagsInput ? tagsInput.split(',').map(t => t.trim()) : [categoryLabel];
+
+            const saveProject = (imgSrc) => {
+                const newObj = {
+                    id: Date.now(),
+                    title: title,
+                    category: category,
+                    categoryLabel: categoryLabel,
+                    image: imgSrc,
+                    description: description,
+                    tags: tagsArray
+                };
+                projectsData.unshift(newObj);
+                renderProjects();
+                closeAddProjectModal();
+                showToast("Project successfully added to portfolio!", "success");
+            };
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    saveProject(evt.target.result);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else if (urlInput.trim() !== '') {
+                saveProject(urlInput.trim());
+            } else {
+                saveProject("https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80");
+            }
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            toast.className = `pointer-events-auto flex items-center gap-3 px-5 py-3.5 rounded-xl text-white font-medium text-sm shadow-2xl transition-all duration-300 transform translate-y-4 border ${
+                type === 'success' 
+                    ? 'bg-slate-800 border-emerald-500 text-emerald-400' 
+                    : 'bg-slate-800 border-amber-500 text-amber-400'
+            }`;
+
+            toast.innerHTML = `
+                <i class="${type === 'success' ? 'fa-solid fa-circle-check text-emerald-400 text-lg' : 'fa-solid fa-circle-info text-amber-400 text-lg'}"></i>
+                <span class="text-slate-100">${msg}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            showToast("Thank you! Message sent to Ahmad Raza.", "success");
+            e.target.reset();
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProjects();
+        });
+    </script>
 </body>
 </html>

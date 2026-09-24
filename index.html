@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ahmad Raza | Civil Site Engineer & Networking Specialist</title>
+    <meta name="description" content="Portfolio website for Ahmad Raza, Civil Site Engineer, NAVTTC Assessor, and IT & Network Infrastructure Specialist.">
+    <meta property="og:title" content="Ahmad Raza | Civil Site Engineer & Networking Specialist">
+    <meta property="og:description" content="Portfolio website for Ahmad Raza, Civil Site Engineer, NAVTTC Assessor, and IT & Network Infrastructure Specialist.">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -484,13 +487,29 @@
                     </div>
 
                     <div class="space-y-4 pt-2">
-                        <div class="flex items-start gap-4 p-4 rounded-xl bg-dark-800 border border-slate-700/60">
-                            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
-                                <i class="fa-solid fa-envelope text-lg"></i>
+                        <!-- Interactive Email Card -->
+                        <div class="p-4 rounded-xl bg-dark-800 border border-slate-700/60 transition-all hover:border-emerald-500/50">
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-envelope text-lg"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-xs text-slate-400 uppercase font-medium">Direct Email</div>
+                                    <a href="mailto:ggahmadraza735@gmail.com" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 break-all transition-colors block">
+                                        ggahmadraza735@gmail.com
+                                    </a>
+                                </div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 uppercase font-medium">Email Address</div>
-                                <div class="text-sm font-semibold text-white">ahmadraza735@gmail.com</div>
+                            <div class="mt-3 pt-3 border-t border-slate-700/60 flex flex-wrap items-center gap-2">
+                                <a href="mailto:ggahmadraza735@gmail.com" class="flex-1 min-w-[120px] py-1.5 px-3 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold text-center transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-paper-plane text-xs"></i> Email Client
+                                </a>
+                                <button type="button" onclick="copyContactEmail()" class="py-1.5 px-3 rounded-lg bg-dark-900 hover:bg-dark-700 text-slate-300 border border-slate-700 text-xs font-semibold transition-colors flex items-center gap-1.5" title="Copy email address">
+                                    <i class="fa-regular fa-copy text-xs"></i> <span id="copy-btn-text">Copy</span>
+                                </button>
+                                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ggahmadraza735@gmail.com" target="_blank" rel="noopener noreferrer" class="py-1.5 px-3 rounded-lg bg-dark-900 hover:bg-dark-700 text-slate-300 border border-slate-700 text-xs font-semibold transition-colors flex items-center gap-1.5" title="Compose in Gmail">
+                                    <i class="fa-brands fa-google text-xs text-red-400"></i> Gmail
+                                </a>
                             </div>
                         </div>
 
@@ -519,37 +538,57 @@
                 <!-- Contact Form -->
                 <div class="lg:col-span-7">
                     <form id="contact-form" onsubmit="handleContactSubmit(event)" class="glass-card p-8 rounded-2xl border border-slate-700/60 shadow-xl space-y-5">
-                        <h3 class="text-xl font-bold text-white mb-1">Send Ahmad a Direct Message</h3>
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <h3 class="text-xl font-bold text-white mb-1">Send Ahmad a Direct Message</h3>
+                            <span class="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 inline-flex items-center gap-1.5 w-fit">
+                                <i class="fa-solid fa-shield-check"></i> To: ggahmadraza735@gmail.com
+                            </span>
+                        </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Your Name *</label>
-                                <input type="text" required placeholder="e.g. John Doe" class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm transition-colors">
+                                <label for="contact-name" class="block text-xs font-semibold text-slate-300 uppercase mb-2">Your Name *</label>
+                                <input type="text" id="contact-name" name="name" required placeholder="e.g. John Doe" class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm transition-colors">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Your Email *</label>
-                                <input type="email" required placeholder="john@example.com" class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm transition-colors">
+                                <label for="contact-email" class="block text-xs font-semibold text-slate-300 uppercase mb-2">Your Email *</label>
+                                <input type="email" id="contact-email" name="email" required placeholder="john@example.com" class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm transition-colors">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label for="contact-service" class="block text-xs font-semibold text-slate-300 uppercase mb-2">Service Needed *</label>
+                                <select id="contact-service" name="service" class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500 text-sm transition-colors">
+                                    <option value="Civil Site Supervision / Drafting">Civil Site Supervision / Drafting</option>
+                                    <option value="Networking & Topology">CCNA Networking / Packet Tracer Lab</option>
+                                    <option value="Linux Administration">Rocky Linux Administration & Security</option>
+                                    <option value="NAVTTC Consultation">NAVTTC Assessment Consultation</option>
+                                    <option value="General Engineering & IT">General Engineering & IT Inquiry</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="contact-subject" class="block text-xs font-semibold text-slate-300 uppercase mb-2">Subject (Optional)</label>
+                                <input type="text" id="contact-subject" name="subject" placeholder="Project Inquiry / Job Opportunity" class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm transition-colors">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Service Needed *</label>
-                            <select class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500 text-sm transition-colors">
-                                <option value="Civil Engineering / Site Supervision">Civil Site Supervision / Drafting</option>
-                                <option value="Networking & Topology">CCNA Networking / Packet Tracer Lab</option>
-                                <option value="Linux Administration">Rocky Linux Administration & Security</option>
-                                <option value="NAVTTC Consultation">NAVTTC Assessment Consultation</option>
-                            </select>
+                            <label for="contact-message" class="block text-xs font-semibold text-slate-300 uppercase mb-2">Message Details *</label>
+                            <textarea id="contact-message" name="message" required rows="4" placeholder="Type your project details or message here..." class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm transition-colors"></textarea>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Message Details *</label>
-                            <textarea required rows="4" placeholder="Type your project message here..." class="w-full px-4 py-3 rounded-xl bg-dark-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm transition-colors"></textarea>
+                        <div class="space-y-3 pt-1">
+                            <button type="submit" id="contact-submit-btn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-dark-950 font-extrabold shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-paper-plane"></i> Send Email to Ahmad Raza
+                            </button>
+                            <div class="flex flex-wrap items-center justify-between text-xs text-slate-400 gap-2 px-1">
+                                <span>Direct email: <strong class="text-emerald-400">ggahmadraza735@gmail.com</strong></span>
+                                <button type="button" onclick="copyContactEmail()" class="text-emerald-400 hover:underline flex items-center gap-1">
+                                    <i class="fa-regular fa-copy"></i> Copy address
+                                </button>
+                            </div>
                         </div>
-
-                        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-dark-950 font-extrabold shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-paper-plane"></i> Send Message
-                        </button>
                     </form>
                 </div>
 
@@ -568,10 +607,60 @@
             <div class="flex space-x-6 text-slate-400 text-lg">
                 <a href="#" class="hover:text-emerald-400 transition-colors"><i class="fa-brands fa-linkedin"></i></a>
                 <a href="#" class="hover:text-emerald-400 transition-colors"><i class="fa-brands fa-github"></i></a>
-                <a href="#" class="hover:text-emerald-400 transition-colors"><i class="fa-solid fa-envelope"></i></a>
+                <a href="mailto:ggahmadraza735@gmail.com" title="Email Ahmad Raza (ggahmadraza735@gmail.com)" class="hover:text-emerald-400 transition-colors"><i class="fa-solid fa-envelope"></i></a>
             </div>
         </div>
     </footer>
+
+    <!-- Email Dispatch Modal -->
+    <div id="email-sent-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-950/90 backdrop-blur-md hidden transition-all duration-300">
+        <div class="relative w-full max-w-lg bg-dark-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-dark-900/80">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                        <i class="fa-solid fa-check"></i>
+                    </span>
+                    <h3 class="text-lg font-bold text-white">Email Prepared for Ahmad Raza</h3>
+                </div>
+                <button onclick="closeEmailSuccessModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700/50 transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4 text-sm">
+                <p class="text-slate-300 leading-relaxed">
+                    Your message has been formulated for <strong class="text-emerald-400" id="modal-email-recipient">ggahmadraza735@gmail.com</strong>.
+                </p>
+
+                <div class="p-4 rounded-xl bg-dark-900 border border-slate-700/80 space-y-2">
+                    <div class="text-xs text-slate-400 uppercase font-semibold">Subject</div>
+                    <div class="text-white font-medium text-sm" id="modal-email-subject">Project Inquiry</div>
+                    <div class="text-xs text-slate-400 uppercase font-semibold pt-2">Recipient</div>
+                    <div class="text-emerald-400 font-mono text-xs">ggahmadraza735@gmail.com</div>
+                </div>
+
+                <div class="space-y-2.5 pt-2">
+                    <a id="modal-email-btn-mailto" href="mailto:ggahmadraza735@gmail.com" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-dark-950 font-bold text-center flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all">
+                        <i class="fa-solid fa-paper-plane"></i> Launch Default Mail App
+                    </a>
+                    
+                    <a id="modal-email-btn-gmail" href="https://mail.google.com/mail/?view=cm&fs=1&to=ggahmadraza735@gmail.com" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-xl bg-dark-900 hover:bg-dark-700 text-white font-semibold text-center border border-slate-700 flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-brands fa-google text-red-400"></i> Open in Gmail Webmail
+                    </a>
+
+                    <button type="button" onclick="copyFullPreparedMessage()" class="w-full py-2.5 px-4 rounded-xl bg-dark-700/60 hover:bg-dark-700 text-slate-300 font-medium text-center border border-slate-600/50 flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-regular fa-copy"></i> Copy Message & Email to Clipboard
+                    </button>
+                </div>
+            </div>
+
+            <div class="px-6 py-3 bg-dark-900/80 border-t border-slate-700 flex justify-end">
+                <button onclick="closeEmailSuccessModal()" class="px-5 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold text-xs transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Lightbox Modal -->
     <div id="lightbox-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-950/90 backdrop-blur-md hidden transition-all duration-300">
@@ -925,10 +1014,131 @@
             }, 3500);
         }
 
-        function handleContactSubmit(e) {
+        function copyContactEmail() {
+            const email = 'ggahmadraza735@gmail.com';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(email).then(() => {
+                    showToast("Email address copied: " + email, "success");
+                    const btnText = document.getElementById('copy-btn-text');
+                    if (btnText) {
+                        btnText.innerText = "Copied!";
+                        setTimeout(() => { btnText.innerText = "Copy"; }, 2000);
+                    }
+                }).catch(() => {
+                    showToast("Email address: " + email, "info");
+                });
+            } else {
+                showToast("Email: " + email, "info");
+            }
+        }
+
+        let pendingMailData = null;
+
+        async function handleContactSubmit(e) {
             e.preventDefault();
-            showToast("Thank you! Message sent to Ahmad Raza.", "success");
+            const nameEl = document.getElementById('contact-name');
+            const emailEl = document.getElementById('contact-email');
+            const serviceEl = document.getElementById('contact-service');
+            const subjectEl = document.getElementById('contact-subject');
+            const messageEl = document.getElementById('contact-message');
+
+            const name = nameEl ? nameEl.value.trim() : '';
+            const email = emailEl ? emailEl.value.trim() : '';
+            const service = serviceEl ? serviceEl.value : 'General Inquiry';
+            const rawSubject = subjectEl ? subjectEl.value.trim() : '';
+            const message = messageEl ? messageEl.value.trim() : '';
+
+            if (!name || !email || !message) {
+                showToast("Please fill in your name, email, and message.", "info");
+                return;
+            }
+
+            const subject = rawSubject || `Portfolio Inquiry: ${service} - from ${name}`;
+            const targetEmail = 'ggahmadraza735@gmail.com';
+            const emailBody = `Hello Ahmad Raza,\n\nName: ${name}\nEmail: ${email}\nService Requested: ${service}\n\nMessage:\n${message}\n\n--\nSent via Ahmad Raza Portfolio Website`;
+
+            const mailtoUrl = `mailto:${targetEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(targetEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+
+            pendingMailData = {
+                name,
+                email,
+                service,
+                subject,
+                message,
+                targetEmail,
+                emailBody,
+                mailtoUrl,
+                gmailUrl
+            };
+
+            // 1. Submit to backend /api/contact to log and store inquiry
+            try {
+                fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, service, subject, message })
+                }).catch(err => {
+                    console.warn('Backend storage notice:', err);
+                });
+            } catch (err) {
+                console.warn('Backend submit notice:', err);
+            }
+
+            // 2. Open default mail client via mailto
+            const mailLink = document.createElement('a');
+            mailLink.href = mailtoUrl;
+            document.body.appendChild(mailLink);
+            mailLink.click();
+            mailLink.remove();
+
+            // 3. Show confirmation modal with webmail / copy alternatives
+            openEmailSuccessModal();
+            showToast("Opening email to " + targetEmail + "!", "success");
+
+            // Reset form fields
             e.target.reset();
+        }
+
+        function openEmailSuccessModal() {
+            if (!pendingMailData) return;
+            const recipientEl = document.getElementById('modal-email-recipient');
+            const subjectEl = document.getElementById('modal-email-subject');
+            const mailtoBtn = document.getElementById('modal-email-btn-mailto');
+            const gmailBtn = document.getElementById('modal-email-btn-gmail');
+
+            if (recipientEl) recipientEl.innerText = pendingMailData.targetEmail;
+            if (subjectEl) subjectEl.innerText = pendingMailData.subject;
+            if (mailtoBtn) mailtoBtn.href = pendingMailData.mailtoUrl;
+            if (gmailBtn) gmailBtn.href = pendingMailData.gmailUrl;
+
+            const modal = document.getElementById('email-sent-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeEmailSuccessModal() {
+            const modal = document.getElementById('email-sent-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function copyFullPreparedMessage() {
+            if (!pendingMailData) return;
+            const fullText = `Recipient: ${pendingMailData.targetEmail}\nSubject: ${pendingMailData.subject}\n\n${pendingMailData.emailBody}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(fullText).then(() => {
+                    showToast("Full message copied to clipboard!", "success");
+                }).catch(() => {
+                    showToast("Email: " + pendingMailData.targetEmail, "info");
+                });
+            } else {
+                showToast("Email: " + pendingMailData.targetEmail, "info");
+            }
         }
 
         // Initialize on load

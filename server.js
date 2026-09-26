@@ -11,8 +11,8 @@ const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
 
 // Support JSON & URL-encoded request bodies
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Store contact messages
 const MESSAGES_FILE = path.join(__dirname, 'contact_messages.json');

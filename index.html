@@ -1015,7 +1015,12 @@
                     body: JSON.stringify(payload)
                 })
                 .then(async (res) => {
-                    const data = await res.json();
+                    let data = {};
+                    try {
+                        data = await res.json();
+                    } catch (e) {
+                        data = { error: res.status === 413 ? 'Image is too large. Please use a smaller file or image URL.' : (res.statusText || 'Failed to save certificate.') };
+                    }
                     if (!res.ok) {
                         throw new Error(data.error || 'Failed to save certificate.');
                     }
@@ -1200,7 +1205,12 @@
                     body: JSON.stringify(payload)
                 })
                 .then(async (res) => {
-                    const data = await res.json();
+                    let data = {};
+                    try {
+                        data = await res.json();
+                    } catch (e) {
+                        data = { error: res.status === 413 ? 'Image is too large. Please use a smaller file or image URL.' : (res.statusText || 'Failed to save project.') };
+                    }
                     if (!res.ok) {
                         throw new Error(data.error || 'Failed to save project.');
                     }

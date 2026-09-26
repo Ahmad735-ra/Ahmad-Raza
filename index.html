@@ -126,11 +126,12 @@
                 <nav class="hidden md:flex items-center space-x-7">
                     <a href="#about" class="text-sm font-medium text-slate-300 hover:text-emerald-400 transition-colors">About</a>
                     <a href="#skills" class="text-sm font-medium text-slate-300 hover:text-emerald-400 transition-colors">Skills</a>
+                    <a href="#certificates" class="text-sm font-medium text-slate-300 hover:text-emerald-400 transition-colors">Certificates</a>
                     <a href="#projects" class="text-sm font-medium text-slate-300 hover:text-emerald-400 transition-colors">Projects Gallery</a>
                     <a href="#contact" class="text-sm font-medium text-slate-300 hover:text-emerald-400 transition-colors">Contact</a>
                     
-                    <button onclick="openAddProjectModal()" class="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition-all flex items-center gap-2 hover:shadow-lg hover:shadow-emerald-500/10">
-                        <i class="fa-solid fa-plus text-xs"></i> Add Project
+                    <button onclick="openAddCertModal()" class="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition-all flex items-center gap-2 hover:shadow-lg hover:shadow-emerald-500/10">
+                        <i class="fa-solid fa-certificate text-xs"></i> Add Certificate
                     </button>
                 </nav>
 
@@ -147,10 +148,11 @@
         <div id="mobile-menu" class="hidden md:hidden bg-dark-900/95 border-b border-slate-800 px-4 pt-3 pb-6 space-y-3">
             <a href="#about" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-dark-800 hover:text-emerald-400 text-base font-medium">About & Credentials</a>
             <a href="#skills" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-dark-800 hover:text-emerald-400 text-base font-medium">Technical Skills</a>
+            <a href="#certificates" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-dark-800 hover:text-emerald-400 text-base font-medium">Certificates</a>
             <a href="#projects" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-dark-800 hover:text-emerald-400 text-base font-medium">Projects Gallery</a>
             <a href="#contact" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-slate-300 hover:bg-dark-800 hover:text-emerald-400 text-base font-medium">Contact Me</a>
-            <button onclick="openAddProjectModal(); toggleMobileMenu();" class="w-full mt-2 px-4 py-3 rounded-xl bg-emerald-500 text-dark-950 font-bold text-center flex items-center justify-center gap-2 shadow-lg">
-                <i class="fa-solid fa-plus"></i> Add New Project
+            <button onclick="openAddCertModal(); toggleMobileMenu();" class="w-full mt-2 px-4 py-3 rounded-xl bg-emerald-500 text-dark-950 font-bold text-center flex items-center justify-center gap-2 shadow-lg">
+                <i class="fa-solid fa-certificate"></i> Add New Certificate
             </button>
         </div>
     </header>
@@ -429,6 +431,30 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </section>
+
+    <!-- Certificates Section -->
+    <section id="certificates" class="py-20 border-t border-slate-800 bg-dark-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+                <div>
+                    <span class="text-emerald-400 font-bold text-xs uppercase tracking-widest">Verified Credentials</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Skills Certificates & Certifications</h2>
+                    <p class="text-slate-400 mt-2 text-sm sm:text-base max-w-xl">
+                        A dynamic catalog of certified qualifications across National Vocational training and international networking standards.
+                    </p>
+                </div>
+
+                <button onclick="openAddCertModal()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-dark-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-certificate text-base"></i> Add Skill Certificate
+                </button>
+            </div>
+
+            <!-- Certificates Grid -->
+            <div id="certs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Dynamically populated from /api/certificates -->
             </div>
         </div>
     </section>
@@ -749,12 +775,86 @@
                     <input type="text" id="new-tags" placeholder="AutoCAD, Site Supervision, CCNA" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
                 </div>
 
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Authorization Password *</label>
+                    <input type="password" id="new-password" required placeholder="Enter password to authorize" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
                 <div class="pt-4 border-t border-slate-700 flex justify-end gap-3">
                     <button type="button" onclick="closeAddProjectModal()" class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold">
                         Cancel
                     </button>
                     <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-dark-950 font-extrabold flex items-center gap-2">
                         <i class="fa-solid fa-check"></i> Save Project
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Certificate Modal -->
+    <div id="add-cert-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-950/90 backdrop-blur-md hidden transition-all duration-300">
+        <div class="relative w-full max-w-lg bg-dark-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-dark-900/80">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-certificate text-emerald-400 text-lg"></i>
+                    <h3 class="text-lg font-bold text-white">Add New Skill Certificate</h3>
+                </div>
+                <button onclick="closeAddCertModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700/50 transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form id="add-cert-form" onsubmit="handleAddCertSubmit(event)" class="p-6 overflow-y-auto space-y-4 text-sm">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Certificate Title *</label>
+                    <input type="text" id="cert-title" required placeholder="e.g. Cisco Routing & Switching (CCNA)" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Issuing Authority / Board *</label>
+                    <input type="text" id="cert-issuer" required placeholder="e.g. Cisco Systems / NAVTTC" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Date Certified *</label>
+                        <input type="text" id="cert-date" required placeholder="e.g. Certified 2024 / Nov 2023" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Verification URL (Optional)</label>
+                        <input type="url" id="cert-url" placeholder="e.g. https://www.credly.com/..." class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Certificate Image / Badge (Optional)</label>
+                    <div class="space-y-2">
+                        <input type="file" id="cert-file-input" accept="image/*" class="w-full text-slate-400 text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30 cursor-pointer">
+                        <span class="text-xs text-slate-500 font-bold block text-center">OR</span>
+                        <input type="url" id="cert-url-input" placeholder="Image URL (e.g. https://images.unsplash.com/...)" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Key Description / Covered Skills</label>
+                    <textarea id="cert-description" rows="3" placeholder="Explain key achievements or covered skills..." class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Authorization Password *</label>
+                    <input type="password" id="cert-password" required placeholder="Enter password to authorize" class="w-full px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="pt-4 border-t border-slate-700 flex justify-end gap-3">
+                    <button type="button" onclick="closeAddCertModal()" class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-dark-950 font-extrabold flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Save Certificate
                     </button>
                 </div>
 
@@ -824,6 +924,126 @@
         ];
 
         let currentFilter = 'all';
+        let certsData = [];
+
+        function renderCertificates() {
+            const grid = document.getElementById('certs-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            if (certsData.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-certificate text-4xl mb-3 text-slate-600"></i>
+                        <p class="text-base">No certificates found.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            certsData.forEach(c => {
+                const card = document.createElement('div');
+                card.className = "glass-card rounded-2xl border border-slate-700/60 shadow-xl overflow-hidden group flex flex-col";
+                card.innerHTML = `
+                    <div class="relative h-48 overflow-hidden bg-dark-900 flex items-center justify-center">
+                        <img src="${c.image}" alt="${c.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=600&q=80'">
+                        <div class="absolute top-4 right-4 px-2.5 py-1 rounded-md bg-dark-950/80 border border-slate-700/50 text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check"></i> Verified
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">${c.issuer}</span>
+                                <span class="text-[10px] font-semibold text-emerald-400">${c.date}</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white leading-snug group-hover:text-emerald-400 transition-colors">${c.title}</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed line-clamp-3">${c.description || ''}</p>
+                        </div>
+                        ${c.verificationUrl ? `
+                        <div class="pt-4 border-t border-slate-800">
+                            <a href="${c.verificationUrl}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 transition-colors">
+                                <i class="fa-solid fa-external-link"></i> Verify Credential
+                            </a>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Add Certificate Modal Controls
+        function openAddCertModal() {
+            document.getElementById('add-cert-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close Certificate Modal
+        function closeAddCertModal() {
+            document.getElementById('add-cert-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+            document.getElementById('add-cert-form').reset();
+        }
+
+        function handleAddCertSubmit(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('cert-title').value;
+            const issuer = document.getElementById('cert-issuer').value;
+            const date = document.getElementById('cert-date').value;
+            const url = document.getElementById('cert-url').value;
+            const fileInput = document.getElementById('cert-file-input');
+            const urlInput = document.getElementById('cert-url-input').value;
+            const description = document.getElementById('cert-description').value;
+            const password = document.getElementById('cert-password').value;
+
+            const saveCert = (imgSrc) => {
+                const payload = {
+                    title,
+                    issuer,
+                    date,
+                    verificationUrl: url,
+                    image: imgSrc,
+                    description,
+                    password
+                };
+
+                fetch('/api/certificates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(async (res) => {
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.error || 'Failed to save certificate.');
+                    }
+                    return data;
+                })
+                .then(newObj => {
+                    certsData.unshift(newObj);
+                    renderCertificates();
+                    closeAddCertModal();
+                    showToast("Skill certificate successfully added!", "success");
+                })
+                .catch(err => {
+                    showToast(err.message, "error");
+                });
+            };
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    saveCert(evt.target.result);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else if (urlInput.trim() !== '') {
+                saveCert(urlInput.trim());
+            } else {
+                saveCert("https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=600&q=80");
+            }
+        }
 
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
@@ -955,6 +1175,7 @@
             const tagsInput = document.getElementById('new-tags').value;
             const fileInput = document.getElementById('new-file-input');
             const urlInput = document.getElementById('new-url-input').value;
+            const password = document.getElementById('new-password').value;
 
             let categoryLabel = "Civil Engineering";
             if(category === 'networking') categoryLabel = "Networking & IT";
@@ -963,19 +1184,37 @@
             const tagsArray = tagsInput ? tagsInput.split(',').map(t => t.trim()) : [categoryLabel];
 
             const saveProject = (imgSrc) => {
-                const newObj = {
-                    id: Date.now(),
+                const payload = {
                     title: title,
                     category: category,
                     categoryLabel: categoryLabel,
                     image: imgSrc,
                     description: description,
-                    tags: tagsArray
+                    tags: tagsArray,
+                    password: password
                 };
-                projectsData.unshift(newObj);
-                renderProjects();
-                closeAddProjectModal();
-                showToast("Project successfully added to portfolio!", "success");
+
+                fetch('/api/projects', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(async (res) => {
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.error || 'Failed to save project.');
+                    }
+                    return data;
+                })
+                .then(newObj => {
+                    projectsData.unshift(newObj);
+                    renderProjects();
+                    closeAddProjectModal();
+                    showToast("Project successfully added to portfolio!", "success");
+                })
+                .catch(err => {
+                    showToast(err.message, "error");
+                });
             };
 
             if (fileInput.files && fileInput.files[0]) {
@@ -1147,7 +1386,27 @@
 
         // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
-            renderProjects();
+            fetch('/api/projects')
+                .then(res => res.json())
+                .then(data => {
+                    projectsData = data;
+                    renderProjects();
+                })
+                .catch(err => {
+                    console.error('Failed to load projects from server:', err);
+                    renderProjects();
+                });
+
+            fetch('/api/certificates')
+                .then(res => res.json())
+                .then(data => {
+                    certsData = data;
+                    renderCertificates();
+                })
+                .catch(err => {
+                    console.error('Failed to load certificates from server:', err);
+                    renderCertificates();
+                });
             
             // Set Base64 profile pictures if available
             if (window.profilePicDataUri && window.profilePicDataUri !== "BASE64_PLACEHOLDER") {

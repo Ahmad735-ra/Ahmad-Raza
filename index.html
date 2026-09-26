@@ -734,6 +734,53 @@
         </div>
     </div>
 
+    <!-- Certificate Lightbox Modal -->
+    <div id="cert-lightbox-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-950/90 backdrop-blur-md hidden transition-all duration-300">
+        <div class="relative w-full max-w-4xl bg-dark-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-dark-900/80">
+                <span id="cert-lightbox-issuer" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Issuer</span>
+                <button onclick="closeCertLightbox()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700/50 transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6">
+                <div class="rounded-xl overflow-hidden border border-slate-700/80 max-h-[450px] bg-black/50 flex justify-center items-center">
+                    <img id="cert-lightbox-image" src="" alt="Certificate Detail" class="w-full h-auto object-contain max-h-[450px]">
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 id="cert-lightbox-title" class="text-2xl font-bold text-white">Certificate Title</h3>
+                        <span id="cert-lightbox-date" class="text-sm font-semibold text-emerald-400">Date</span>
+                    </div>
+                    <p id="cert-lightbox-description" class="text-slate-300 text-sm leading-relaxed mb-4">Description content...</p>
+                    
+                    <div id="cert-lightbox-verify-container" class="pt-4 border-t border-slate-700/60 hidden">
+                        <a id="cert-lightbox-verify" href="#" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 transition-colors">
+                            <i class="fa-solid fa-external-link"></i> Verify Credential Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-dark-900/80 border-t border-slate-700 flex justify-between items-center flex-wrap gap-3">
+                <div class="flex items-center gap-3">
+                    <button id="edit-cert-btn" class="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 font-semibold text-xs transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-edit"></i> Edit Certificate
+                    </button>
+                    <button id="delete-cert-btn" class="px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-semibold text-xs transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash"></i> Delete Certificate
+                    </button>
+                </div>
+                <button onclick="closeCertLightbox()" class="px-5 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold text-sm transition-colors">
+                    Close Preview
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Project Modal -->
     <div id="add-project-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-950/90 backdrop-blur-md hidden transition-all duration-300">
         <div class="relative w-full max-w-lg bg-dark-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -808,7 +855,7 @@
             <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-dark-900/80">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-certificate text-emerald-400 text-lg"></i>
-                    <h3 class="text-lg font-bold text-white">Add New Skill Certificate</h3>
+                    <h3 id="cert-modal-title" class="text-lg font-bold text-white">Add New Skill Certificate</h3>
                 </div>
                 <button onclick="closeAddCertModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700/50 transition-colors">
                     <i class="fa-solid fa-xmark text-xl"></i>
@@ -861,7 +908,7 @@
                     <button type="button" onclick="closeAddCertModal()" class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold">
                         Cancel
                     </button>
-                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-dark-950 font-extrabold flex items-center gap-2">
+                    <button id="cert-submit-btn" type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-dark-950 font-extrabold flex items-center gap-2">
                         <i class="fa-solid fa-check"></i> Save Certificate
                     </button>
                 </div>
@@ -969,6 +1016,7 @@
 
         let currentFilter = 'all';
         let certsData = [];
+        let currentEditCertId = null;
 
         function renderCertificates() {
             const grid = document.getElementById('certs-grid');
@@ -987,12 +1035,21 @@
 
             certsData.forEach(c => {
                 const card = document.createElement('div');
-                card.className = "glass-card rounded-2xl border border-slate-700/60 shadow-xl overflow-hidden group flex flex-col";
+                card.className = "group glass-card rounded-2xl border border-slate-700/60 shadow-xl overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-300 gradient-border-glow cursor-pointer";
+                card.onclick = (e) => {
+                    if (e.target.closest('a')) return;
+                    openCertLightbox(c.id);
+                };
                 card.innerHTML = `
                     <div class="relative h-48 overflow-hidden bg-dark-900 flex items-center justify-center">
-                        <img src="${c.image}" alt="${c.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=600&q=80'">
+                        <img src="${c.image}" alt="${c.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=600&q=80'">
                         <div class="absolute top-4 right-4 px-2.5 py-1 rounded-md bg-dark-950/80 border border-slate-700/50 text-[10px] font-bold text-emerald-400 flex items-center gap-1">
                             <i class="fa-solid fa-circle-check"></i> Verified
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-dark-950/50 backdrop-blur-sm transition-opacity">
+                            <span class="px-4 py-2 rounded-xl bg-emerald-500 text-dark-950 font-bold text-xs flex items-center gap-2">
+                                <i class="fa-solid fa-expand"></i> View Certificate
+                            </span>
                         </div>
                     </div>
                     <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
@@ -1004,16 +1061,115 @@
                             <h3 class="text-lg font-bold text-white leading-snug group-hover:text-emerald-400 transition-colors">${c.title}</h3>
                             <p class="text-xs text-slate-400 leading-relaxed line-clamp-3">${c.description || ''}</p>
                         </div>
-                        ${c.verificationUrl ? `
-                        <div class="pt-4 border-t border-slate-800">
+                        <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                            ${c.verificationUrl ? `
                             <a href="${c.verificationUrl}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 transition-colors">
                                 <i class="fa-solid fa-external-link"></i> Verify Credential
                             </a>
+                            ` : '<span></span>'}
+                            <button onclick="event.stopPropagation(); openCertLightbox(${c.id})" class="text-xs font-bold text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+                                <i class="fa-solid fa-eye"></i> View
+                            </button>
                         </div>
-                        ` : ''}
                     </div>
                 `;
                 grid.appendChild(card);
+            });
+        }
+
+        // Certificate Lightbox Handler
+        function openCertLightbox(id) {
+            const c = certsData.find(x => x.id === id);
+            if(!c) return;
+
+            document.getElementById('cert-lightbox-title').textContent = c.title;
+            document.getElementById('cert-lightbox-issuer').textContent = c.issuer;
+            document.getElementById('cert-lightbox-image').src = c.image;
+            document.getElementById('cert-lightbox-date').textContent = c.date;
+            document.getElementById('cert-lightbox-description').textContent = c.description || "No description provided.";
+
+            const verifyContainer = document.getElementById('cert-lightbox-verify-container');
+            const verifyLink = document.getElementById('cert-lightbox-verify');
+            if (c.verificationUrl) {
+                verifyLink.href = c.verificationUrl;
+                verifyContainer.classList.remove('hidden');
+            } else {
+                verifyContainer.classList.add('hidden');
+            }
+
+            // Hook up Edit/Delete button handlers
+            document.getElementById('edit-cert-btn').onclick = function() {
+                openEditCert(c.id);
+            };
+            document.getElementById('delete-cert-btn').onclick = function() {
+                deleteCert(c.id);
+            };
+
+            document.getElementById('cert-lightbox-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCertLightbox() {
+            document.getElementById('cert-lightbox-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function openEditCert(id) {
+            const c = certsData.find(x => x.id === id);
+            if (!c) return;
+
+            currentEditCertId = c.id;
+            document.getElementById('cert-modal-title').textContent = "Edit Certificate Details";
+            document.getElementById('cert-submit-btn').innerHTML = '<i class="fa-solid fa-edit"></i> Update Certificate';
+
+            // Pre-fill form fields
+            document.getElementById('cert-title').value = c.title;
+            document.getElementById('cert-issuer').value = c.issuer;
+            document.getElementById('cert-date').value = c.date;
+            document.getElementById('cert-url').value = c.verificationUrl || '';
+            document.getElementById('cert-url-input').value = c.image.startsWith('data:') ? '' : c.image;
+            document.getElementById('cert-description').value = c.description || '';
+            document.getElementById('cert-password').value = '';
+
+            // Close lightbox and open modal
+            closeCertLightbox();
+            openAddCertModal();
+        }
+
+        function deleteCert(id) {
+            const password = prompt("Enter authorization password (Ahmad@001) to delete this certificate:");
+            if (password === null) return; // user cancelled
+
+            if (!password) {
+                showToast("Password is required to delete a certificate.", "error");
+                return;
+            }
+
+            fetch(`/api/certificates/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: password })
+            })
+            .then(async (res) => {
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (e) {
+                    data = { error: res.statusText || 'Failed to delete certificate.' };
+                }
+                if (!res.ok) {
+                    throw new Error(data.error || 'Failed to delete certificate.');
+                }
+                return data;
+            })
+            .then(res => {
+                certsData = certsData.filter(c => c.id !== id);
+                renderCertificates();
+                closeCertLightbox();
+                showToast("Certificate successfully deleted!", "success");
+            })
+            .catch(err => {
+                showToast(err.message, "error");
             });
         }
 
@@ -1028,6 +1184,9 @@
             document.getElementById('add-cert-modal').classList.add('hidden');
             document.body.style.overflow = '';
             document.getElementById('add-cert-form').reset();
+            currentEditCertId = null;
+            document.getElementById('cert-modal-title').textContent = "Add New Skill Certificate";
+            document.getElementById('cert-submit-btn').innerHTML = '<i class="fa-solid fa-check"></i> Save Certificate';
         }
 
         function handleAddCertSubmit(e) {
@@ -1053,8 +1212,11 @@
                     password
                 };
 
-                fetch('/api/certificates', {
-                    method: 'POST',
+                const fetchUrl = currentEditCertId ? `/api/certificates/${currentEditCertId}` : '/api/certificates';
+                const method = currentEditCertId ? 'PUT' : 'POST';
+
+                fetch(fetchUrl, {
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 })
@@ -1070,11 +1232,19 @@
                     }
                     return data;
                 })
-                .then(newObj => {
-                    certsData.unshift(newObj);
+                .then(updatedObj => {
+                    if (currentEditCertId) {
+                        const idx = certsData.findIndex(c => c.id === currentEditCertId);
+                        if (idx !== -1) {
+                            certsData[idx] = updatedObj;
+                        }
+                        showToast("Certificate successfully updated!", "success");
+                    } else {
+                        certsData.unshift(updatedObj);
+                        showToast("Skill certificate successfully added!", "success");
+                    }
                     renderCertificates();
                     closeAddCertModal();
-                    showToast("Skill certificate successfully added!", "success");
                 })
                 .catch(err => {
                     showToast(err.message, "error");

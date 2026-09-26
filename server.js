@@ -133,6 +133,91 @@ app.post('/api/certificates', (req, res) => {
   }
 });
 
+app.put('/api/certificates/:id', (req, res) => {
+  const { title, issuer, date, verificationUrl, image, description, password } = req.body;
+  const certId = parseInt(req.params.id, 10);
+
+  if (password !== 'Ahmad@001') {
+    return res.status(403).json({ error: 'Incorrect authorization password. Certificate cannot be updated.' });
+  }
+
+  if (!title || !issuer || !date) {
+    return res.status(400).json({ error: 'Title, issuer, and date are required.' });
+  }
+
+  try {
+    if (!certificatesCache) {
+      if (fs.existsSync(CERTIFICATES_FILE)) {
+        const data = fs.readFileSync(CERTIFICATES_FILE, 'utf8');
+        certificatesCache = JSON.parse(data || '[]');
+      } else {
+        certificatesCache = [...INITIAL_CERTIFICATES];
+      }
+    }
+
+    const index = certificatesCache.findIndex(c => c.id === certId);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Certificate not found.' });
+    }
+
+    certificatesCache[index] = {
+      ...certificatesCache[index],
+      title,
+      issuer,
+      date,
+      image: image || certificatesCache[index].image,
+      description: description || "",
+      verificationUrl: verificationUrl || ""
+    };
+
+    try {
+      fs.writeFileSync(CERTIFICATES_FILE, JSON.stringify(certificatesCache, null, 2));
+    } catch (writeErr) {
+      console.warn('Warning: Failed to write certificates to disk (possible read-only filesystem), keeping in-memory:', writeErr.message);
+    }
+    return res.json(certificatesCache[index]);
+  } catch (err) {
+    console.error('Error updating certificate:', err);
+    return res.status(500).json({ error: 'Failed to update certificate.' });
+  }
+});
+
+app.delete('/api/certificates/:id', (req, res) => {
+  const { password } = req.body;
+  const certId = parseInt(req.params.id, 10);
+
+  if (password !== 'Ahmad@001') {
+    return res.status(403).json({ error: 'Incorrect authorization password. Certificate cannot be deleted.' });
+  }
+
+  try {
+    if (!certificatesCache) {
+      if (fs.existsSync(CERTIFICATES_FILE)) {
+        const data = fs.readFileSync(CERTIFICATES_FILE, 'utf8');
+        certificatesCache = JSON.parse(data || '[]');
+      } else {
+        certificatesCache = [...INITIAL_CERTIFICATES];
+      }
+    }
+
+    const index = certificatesCache.findIndex(c => c.id === certId);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Certificate not found.' });
+    }
+
+    certificatesCache.splice(index, 1);
+    try {
+      fs.writeFileSync(CERTIFICATES_FILE, JSON.stringify(certificatesCache, null, 2));
+    } catch (writeErr) {
+      console.warn('Warning: Failed to write certificates to disk (possible read-only filesystem), keeping in-memory:', writeErr.message);
+    }
+    return res.json({ success: true, id: certId });
+  } catch (err) {
+    console.error('Error deleting certificate:', err);
+    return res.status(500).json({ error: 'Failed to delete certificate.' });
+  }
+});
+
 const INITIAL_PROJECTS = [
   {
     id: 1,

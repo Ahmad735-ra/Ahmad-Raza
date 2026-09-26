@@ -718,7 +718,15 @@
                 </div>
             </div>
 
-            <div class="px-6 py-4 bg-dark-900/80 border-t border-slate-700 flex justify-end">
+            <div class="px-6 py-4 bg-dark-900/80 border-t border-slate-700 flex justify-between items-center flex-wrap gap-3">
+                <div class="flex items-center gap-3">
+                    <button id="edit-project-btn" class="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 font-semibold text-xs transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-edit"></i> Edit Project
+                    </button>
+                    <button id="delete-project-btn" class="px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-semibold text-xs transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash"></i> Delete Project
+                    </button>
+                </div>
                 <button onclick="closeLightbox()" class="px-5 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold text-sm transition-colors">
                     Close Preview
                 </button>
@@ -733,7 +741,7 @@
             <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-dark-900/80">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-plus-circle text-emerald-400 text-lg"></i>
-                    <h3 class="text-lg font-bold text-white">Add New Project to Portfolio</h3>
+                    <h3 id="project-modal-title" class="text-lg font-bold text-white">Add New Project to Portfolio</h3>
                 </div>
                 <button onclick="closeAddProjectModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700/50 transition-colors">
                     <i class="fa-solid fa-xmark text-xl"></i>
@@ -784,7 +792,7 @@
                     <button type="button" onclick="closeAddProjectModal()" class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold">
                         Cancel
                     </button>
-                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-dark-950 font-extrabold flex items-center gap-2">
+                    <button id="project-submit-btn" type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-dark-950 font-extrabold flex items-center gap-2">
                         <i class="fa-solid fa-check"></i> Save Project
                     </button>
                 </div>
@@ -1136,6 +1144,8 @@
             renderProjects();
         }
 
+        let currentEditProjectId = null;
+
         // Lightbox Handler
         function openLightbox(id) {
             const p = projectsData.find(x => x.id === id);
@@ -1149,6 +1159,14 @@
             document.getElementById('lightbox-tags').innerHTML = p.tags.map(t => 
                 `<span class="px-3 py-1 rounded-lg bg-dark-900 border border-slate-700 text-emerald-400 text-xs font-medium">${t}</span>`
             ).join('');
+
+            // Hook up Edit/Delete button handlers
+            document.getElementById('edit-project-btn').onclick = function() {
+                openEditProject(p.id);
+            };
+            document.getElementById('delete-project-btn').onclick = function() {
+                deleteProject(p.id);
+            };
 
             document.getElementById('lightbox-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -1169,6 +1187,67 @@
             document.getElementById('add-project-modal').classList.add('hidden');
             document.body.style.overflow = '';
             document.getElementById('add-project-form').reset();
+            currentEditProjectId = null;
+            document.getElementById('project-modal-title').textContent = "Add New Project to Portfolio";
+            document.getElementById('project-submit-btn').innerHTML = '<i class="fa-solid fa-check"></i> Save Project';
+        }
+
+        function openEditProject(id) {
+            const p = projectsData.find(x => x.id === id);
+            if (!p) return;
+
+            currentEditProjectId = p.id;
+            document.getElementById('project-modal-title').textContent = "Edit Project Details";
+            document.getElementById('project-submit-btn').innerHTML = '<i class="fa-solid fa-edit"></i> Update Project';
+
+            // Pre-fill form fields
+            document.getElementById('new-title').value = p.title;
+            document.getElementById('new-category').value = p.category;
+            document.getElementById('new-description').value = p.description;
+            document.getElementById('new-tags').value = p.tags.join(', ');
+            document.getElementById('new-url-input').value = p.image.startsWith('data:') ? '' : p.image;
+            document.getElementById('new-password').value = '';
+
+            // Close lightbox and open modal
+            closeLightbox();
+            openAddProjectModal();
+        }
+
+        function deleteProject(id) {
+            const password = prompt("Enter authorization password (Ahmad@001) to delete this project:");
+            if (password === null) return; // user cancelled
+
+            if (!password) {
+                showToast("Password is required to delete a project.", "error");
+                return;
+            }
+
+            fetch(`/api/projects/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: password })
+            })
+            .then(async (res) => {
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (e) {
+                    data = { error: res.statusText || 'Failed to delete project.' };
+                }
+                if (!res.ok) {
+                    throw new Error(data.error || 'Failed to delete project.');
+                }
+                return data;
+            })
+            .then(res => {
+                projectsData = projectsData.filter(p => p.id !== id);
+                renderProjects();
+                closeLightbox();
+                showToast("Project successfully deleted!", "success");
+            })
+            .catch(err => {
+                showToast(err.message, "error");
+            });
         }
 
         function handleAddProjectSubmit(e) {
@@ -1199,8 +1278,11 @@
                     password: password
                 };
 
-                fetch('/api/projects', {
-                    method: 'POST',
+                const url = currentEditProjectId ? `/api/projects/${currentEditProjectId}` : '/api/projects';
+                const method = currentEditProjectId ? 'PUT' : 'POST';
+
+                fetch(url, {
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 })
@@ -1216,11 +1298,19 @@
                     }
                     return data;
                 })
-                .then(newObj => {
-                    projectsData.unshift(newObj);
+                .then(updatedObj => {
+                    if (currentEditProjectId) {
+                        const idx = projectsData.findIndex(p => p.id === currentEditProjectId);
+                        if (idx !== -1) {
+                            projectsData[idx] = updatedObj;
+                        }
+                        showToast("Project successfully updated!", "success");
+                    } else {
+                        projectsData.unshift(updatedObj);
+                        showToast("Project successfully added to portfolio!", "success");
+                    }
                     renderProjects();
                     closeAddProjectModal();
-                    showToast("Project successfully added to portfolio!", "success");
                 })
                 .catch(err => {
                     showToast(err.message, "error");

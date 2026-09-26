@@ -224,6 +224,81 @@ app.post('/api/projects', (req, res) => {
   }
 });
 
+app.put('/api/projects/:id', (req, res) => {
+  const { title, category, categoryLabel, image, description, tags, password } = req.body;
+  const projectId = parseInt(req.params.id, 10);
+
+  if (password !== 'Ahmad@001') {
+    return res.status(403).json({ error: 'Incorrect authorization password. Project cannot be updated.' });
+  }
+
+  if (!title || !category || !description) {
+    return res.status(400).json({ error: 'Title, category, and description are required.' });
+  }
+
+  try {
+    let projects = [];
+    if (fs.existsSync(PROJECTS_FILE)) {
+      const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
+      projects = JSON.parse(data || '[]');
+    } else {
+      projects = [...INITIAL_PROJECTS];
+    }
+
+    const index = projects.findIndex(p => p.id === projectId);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Project not found.' });
+    }
+
+    projects[index] = {
+      ...projects[index],
+      title,
+      category,
+      categoryLabel: categoryLabel || (category === 'civil' ? 'Civil Engineering' : category === 'networking' ? 'Networking & IT' : 'Other Projects'),
+      image: image || projects[index].image,
+      description,
+      tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()) : [])
+    };
+
+    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2));
+    return res.json(projects[index]);
+  } catch (err) {
+    console.error('Error updating project:', err);
+    return res.status(500).json({ error: 'Failed to update project.' });
+  }
+});
+
+app.delete('/api/projects/:id', (req, res) => {
+  const { password } = req.body;
+  const projectId = parseInt(req.params.id, 10);
+
+  if (password !== 'Ahmad@001') {
+    return res.status(403).json({ error: 'Incorrect authorization password. Project cannot be deleted.' });
+  }
+
+  try {
+    let projects = [];
+    if (fs.existsSync(PROJECTS_FILE)) {
+      const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
+      projects = JSON.parse(data || '[]');
+    } else {
+      projects = [...INITIAL_PROJECTS];
+    }
+
+    const index = projects.findIndex(p => p.id === projectId);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Project not found.' });
+    }
+
+    projects.splice(index, 1);
+    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2));
+    return res.json({ success: true, id: projectId });
+  } catch (err) {
+    console.error('Error deleting project:', err);
+    return res.status(500).json({ error: 'Failed to delete project.' });
+  }
+});
+
 app.post('/api/contact', (req, res) => {
   const { name, email, service, message, subject } = req.body;
   if (!name || !email || !message) {

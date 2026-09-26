@@ -49,25 +49,45 @@ const INITIAL_CERTIFICATES = [
   }
 ];
 
-// Initialize certificates file if it doesn't exist
+let certificatesCache = null;
+let projectsCache = null;
+let messagesCache = null;
+
+// Initialize certificates file/cache if needed
 try {
-  if (!fs.existsSync(CERTIFICATES_FILE)) {
-    fs.writeFileSync(CERTIFICATES_FILE, JSON.stringify(INITIAL_CERTIFICATES, null, 2));
+  if (fs.existsSync(CERTIFICATES_FILE)) {
+    const data = fs.readFileSync(CERTIFICATES_FILE, 'utf8');
+    certificatesCache = JSON.parse(data || '[]');
+  } else {
+    certificatesCache = [...INITIAL_CERTIFICATES];
+    try {
+      fs.writeFileSync(CERTIFICATES_FILE, JSON.stringify(certificatesCache, null, 2));
+    } catch (writeErr) {
+      console.warn('Warning: Failed to write initial certificates to disk (possible read-only filesystem):', writeErr.message);
+    }
   }
 } catch (err) {
-  console.error('Error initializing certificates file:', err);
+  console.error('Error initializing certificates:', err);
+  certificatesCache = [...INITIAL_CERTIFICATES];
 }
 
 app.get('/api/certificates', (req, res) => {
   try {
+    if (certificatesCache) {
+      return res.json(certificatesCache);
+    }
     if (fs.existsSync(CERTIFICATES_FILE)) {
       const data = fs.readFileSync(CERTIFICATES_FILE, 'utf8');
-      return res.json(JSON.parse(data || '[]'));
+      certificatesCache = JSON.parse(data || '[]');
+      return res.json(certificatesCache);
     }
   } catch (err) {
     console.error('Error reading certificates:', err);
   }
-  return res.json(INITIAL_CERTIFICATES);
+  if (!certificatesCache) {
+    certificatesCache = [...INITIAL_CERTIFICATES];
+  }
+  return res.json(certificatesCache);
 });
 
 app.post('/api/certificates', (req, res) => {
@@ -92,15 +112,20 @@ app.post('/api/certificates', (req, res) => {
   };
 
   try {
-    let certificates = [];
-    if (fs.existsSync(CERTIFICATES_FILE)) {
-      const data = fs.readFileSync(CERTIFICATES_FILE, 'utf8');
-      certificates = JSON.parse(data || '[]');
-    } else {
-      certificates = [...INITIAL_CERTIFICATES];
+    if (!certificatesCache) {
+      if (fs.existsSync(CERTIFICATES_FILE)) {
+        const data = fs.readFileSync(CERTIFICATES_FILE, 'utf8');
+        certificatesCache = JSON.parse(data || '[]');
+      } else {
+        certificatesCache = [...INITIAL_CERTIFICATES];
+      }
     }
-    certificates.unshift(newCertificate);
-    fs.writeFileSync(CERTIFICATES_FILE, JSON.stringify(certificates, null, 2));
+    certificatesCache.unshift(newCertificate);
+    try {
+      fs.writeFileSync(CERTIFICATES_FILE, JSON.stringify(certificatesCache, null, 2));
+    } catch (writeErr) {
+      console.warn('Warning: Failed to write certificates to disk (possible read-only filesystem), keeping in-memory:', writeErr.message);
+    }
     return res.json(newCertificate);
   } catch (err) {
     console.error('Error saving new certificate:', err);
@@ -165,25 +190,41 @@ const INITIAL_PROJECTS = [
   }
 ];
 
-// Initialize projects file if it doesn't exist
+// Initialize projects file/cache if needed
 try {
-  if (!fs.existsSync(PROJECTS_FILE)) {
-    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(INITIAL_PROJECTS, null, 2));
+  if (fs.existsSync(PROJECTS_FILE)) {
+    const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
+    projectsCache = JSON.parse(data || '[]');
+  } else {
+    projectsCache = [...INITIAL_PROJECTS];
+    try {
+      fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projectsCache, null, 2));
+    } catch (writeErr) {
+      console.warn('Warning: Failed to write initial projects to disk (possible read-only filesystem):', writeErr.message);
+    }
   }
 } catch (err) {
-  console.error('Error initializing projects file:', err);
+  console.error('Error initializing projects:', err);
+  projectsCache = [...INITIAL_PROJECTS];
 }
 
 app.get('/api/projects', (req, res) => {
   try {
+    if (projectsCache) {
+      return res.json(projectsCache);
+    }
     if (fs.existsSync(PROJECTS_FILE)) {
       const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
-      return res.json(JSON.parse(data || '[]'));
+      projectsCache = JSON.parse(data || '[]');
+      return res.json(projectsCache);
     }
   } catch (err) {
     console.error('Error reading projects:', err);
   }
-  return res.json(INITIAL_PROJECTS);
+  if (!projectsCache) {
+    projectsCache = [...INITIAL_PROJECTS];
+  }
+  return res.json(projectsCache);
 });
 
 app.post('/api/projects', (req, res) => {
@@ -208,15 +249,20 @@ app.post('/api/projects', (req, res) => {
   };
 
   try {
-    let projects = [];
-    if (fs.existsSync(PROJECTS_FILE)) {
-      const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
-      projects = JSON.parse(data || '[]');
-    } else {
-      projects = [...INITIAL_PROJECTS];
+    if (!projectsCache) {
+      if (fs.existsSync(PROJECTS_FILE)) {
+        const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
+        projectsCache = JSON.parse(data || '[]');
+      } else {
+        projectsCache = [...INITIAL_PROJECTS];
+      }
     }
-    projects.unshift(newProject);
-    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2));
+    projectsCache.unshift(newProject);
+    try {
+      fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projectsCache, null, 2));
+    } catch (writeErr) {
+      console.warn('Warning: Failed to write projects to disk (possible read-only filesystem), keeping in-memory:', writeErr.message);
+    }
     return res.json(newProject);
   } catch (err) {
     console.error('Error saving new project:', err);
@@ -237,31 +283,36 @@ app.put('/api/projects/:id', (req, res) => {
   }
 
   try {
-    let projects = [];
-    if (fs.existsSync(PROJECTS_FILE)) {
-      const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
-      projects = JSON.parse(data || '[]');
-    } else {
-      projects = [...INITIAL_PROJECTS];
+    if (!projectsCache) {
+      if (fs.existsSync(PROJECTS_FILE)) {
+        const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
+        projectsCache = JSON.parse(data || '[]');
+      } else {
+        projectsCache = [...INITIAL_PROJECTS];
+      }
     }
 
-    const index = projects.findIndex(p => p.id === projectId);
+    const index = projectsCache.findIndex(p => p.id === projectId);
     if (index === -1) {
       return res.status(404).json({ error: 'Project not found.' });
     }
 
-    projects[index] = {
-      ...projects[index],
+    projectsCache[index] = {
+      ...projectsCache[index],
       title,
       category,
       categoryLabel: categoryLabel || (category === 'civil' ? 'Civil Engineering' : category === 'networking' ? 'Networking & IT' : 'Other Projects'),
-      image: image || projects[index].image,
+      image: image || projectsCache[index].image,
       description,
       tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()) : [])
     };
 
-    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2));
-    return res.json(projects[index]);
+    try {
+      fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projectsCache, null, 2));
+    } catch (writeErr) {
+      console.warn('Warning: Failed to write projects to disk (possible read-only filesystem), keeping in-memory:', writeErr.message);
+    }
+    return res.json(projectsCache[index]);
   } catch (err) {
     console.error('Error updating project:', err);
     return res.status(500).json({ error: 'Failed to update project.' });
@@ -277,21 +328,26 @@ app.delete('/api/projects/:id', (req, res) => {
   }
 
   try {
-    let projects = [];
-    if (fs.existsSync(PROJECTS_FILE)) {
-      const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
-      projects = JSON.parse(data || '[]');
-    } else {
-      projects = [...INITIAL_PROJECTS];
+    if (!projectsCache) {
+      if (fs.existsSync(PROJECTS_FILE)) {
+        const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
+        projectsCache = JSON.parse(data || '[]');
+      } else {
+        projectsCache = [...INITIAL_PROJECTS];
+      }
     }
 
-    const index = projects.findIndex(p => p.id === projectId);
+    const index = projectsCache.findIndex(p => p.id === projectId);
     if (index === -1) {
       return res.status(404).json({ error: 'Project not found.' });
     }
 
-    projects.splice(index, 1);
-    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2));
+    projectsCache.splice(index, 1);
+    try {
+      fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projectsCache, null, 2));
+    } catch (writeErr) {
+      console.warn('Warning: Failed to write projects to disk (possible read-only filesystem), keeping in-memory:', writeErr.message);
+    }
     return res.json({ success: true, id: projectId });
   } catch (err) {
     console.error('Error deleting project:', err);
@@ -317,13 +373,20 @@ app.post('/api/contact', (req, res) => {
   };
 
   try {
-    let messages = [];
-    if (fs.existsSync(MESSAGES_FILE)) {
-      const data = fs.readFileSync(MESSAGES_FILE, 'utf8');
-      messages = JSON.parse(data || '[]');
+    if (!messagesCache) {
+      if (fs.existsSync(MESSAGES_FILE)) {
+        const data = fs.readFileSync(MESSAGES_FILE, 'utf8');
+        messagesCache = JSON.parse(data || '[]');
+      } else {
+        messagesCache = [];
+      }
     }
-    messages.push(newEntry);
-    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    messagesCache.push(newEntry);
+    try {
+      fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messagesCache, null, 2));
+    } catch (writeErr) {
+      console.warn('Warning: Failed to write contact messages to disk, keeping in-memory:', writeErr.message);
+    }
   } catch (err) {
     console.error('Error saving contact message:', err);
   }

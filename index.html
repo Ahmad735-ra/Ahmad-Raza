@@ -874,6 +874,42 @@
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-3 pointer-events-none"></div>
 
     <script>
+        function compressAndResizeImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1000;
+                    const MAX_HEIGHT = 1000;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    callback(dataUrl);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
         let projectsData = [
             {
                 id: 1,
@@ -1046,11 +1082,9 @@
             };
 
             if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    saveCert(evt.target.result);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
+                compressAndResizeImage(fileInput.files[0], function(compressedDataUrl) {
+                    saveCert(compressedDataUrl);
+                });
             } else if (urlInput.trim() !== '') {
                 saveCert(urlInput.trim());
             } else {
@@ -1318,11 +1352,9 @@
             };
 
             if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    saveProject(evt.target.result);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
+                compressAndResizeImage(fileInput.files[0], function(compressedDataUrl) {
+                    saveProject(compressedDataUrl);
+                });
             } else if (urlInput.trim() !== '') {
                 saveProject(urlInput.trim());
             } else {

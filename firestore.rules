@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Certificates are publicly readable, but client-side writes are forbidden.
+    // Writes are securely handled on the backend (server.js) using Admin privileges.
+    match /certificates/{certificateId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Projects are publicly readable, but client-side writes are forbidden.
+    // Writes are securely handled on the backend (server.js) using Admin privileges.
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Anyone can create a contact message from the contact form,
+    // but reading or modifying them from the client-side is strictly forbidden (Zero-PII leak).
+    match /contact_messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+  }
+}

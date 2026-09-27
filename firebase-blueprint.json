@@ -1,0 +1,64 @@
+{
+  "entities": {
+    "Certificate": {
+      "title": "Certificate",
+      "description": "Professional qualifications and certifications of Ahmad Raza",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 100, "description": "Title of the certificate" },
+        "issuer": { "type": "string", "minLength": 1, "maxLength": 100, "description": "Issuer organization" },
+        "date": { "type": "string", "minLength": 1, "maxLength": 50, "description": "Date or year of certification" },
+        "image": { "type": "string", "description": "URL or base64 data URI of the certificate image" },
+        "description": { "type": "string", "maxLength": 1000, "description": "Description of the course or skills learned" },
+        "verificationUrl": { "type": "string", "description": "Optional verification link" }
+      },
+      "required": ["title", "issuer", "date"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Portfolio projects in Civil Engineering, IT, and Networking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 100, "description": "Title of the project" },
+        "category": { "type": "string", "enum": ["civil", "networking", "other"], "description": "Category key" },
+        "categoryLabel": { "type": "string", "maxLength": 100, "description": "Readable category name" },
+        "image": { "type": "string", "description": "Project cover image link or base64" },
+        "description": { "type": "string", "maxLength": 2000, "description": "Description of project objectives and delivery" },
+        "tags": { "type": "array", "description": "List of tags associated with the project" }
+      },
+      "required": ["title", "category", "description"]
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "description": "Contact inquiries received via the portfolio contact form",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 100, "description": "Sender name" },
+        "email": { "type": "string", "format": "email", "description": "Sender email address" },
+        "service": { "type": "string", "maxLength": 100, "description": "Requested service" },
+        "subject": { "type": "string", "maxLength": 200, "description": "Inquiry subject line" },
+        "message": { "type": "string", "minLength": 1, "maxLength": 5000, "description": "Message content" },
+        "recipient": { "type": "string", "format": "email", "description": "Recipient email address" },
+        "receivedAt": { "type": "string", "format": "date-time", "description": "Timestamp of receipt" }
+      },
+      "required": ["name", "email", "message"]
+    }
+  },
+  "firestore": {
+    "/certificates/{certificateId}": {
+      "schema": "Certificate",
+      "description": "Collection of certificates"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Collection of portfolio projects"
+    },
+    "/contact_messages/{messageId}": {
+      "schema": "ContactMessage",
+      "description": "Collection of user contact messages"
+    }
+  }
+}

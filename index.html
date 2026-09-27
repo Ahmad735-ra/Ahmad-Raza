@@ -1038,8 +1038,184 @@
             }
         ];
 
+        const STORAGE_CERTS_KEY = 'ahmad_raza_certificates_v3';
+        const STORAGE_PROJECTS_KEY = 'ahmad_raza_projects_v3';
+        const DB_NAME = 'AhmadRazaPortfolioDB_v3';
+
+        // Robust IndexedDB Provider (unlimited quota on mobile & desktop)
+        let dbInstancePromise = null;
+        function getPortfolioDB() {
+            if (!dbInstancePromise) {
+                dbInstancePromise = new Promise((resolve) => {
+                    if (!window.indexedDB) return resolve(null);
+                    try {
+                        const req = indexedDB.open(DB_NAME, 1);
+                        req.onupgradeneeded = function(e) {
+                            const db = e.target.result;
+                            if (!db.objectStoreNames.contains('certificates')) {
+                                db.createObjectStore('certificates', { keyPath: 'id' });
+                            }
+                            if (!db.objectStoreNames.contains('projects')) {
+                                db.createObjectStore('projects', { keyPath: 'id' });
+                            }
+                        };
+                        req.onsuccess = function(e) {
+                            resolve(e.target.result);
+                        };
+                        req.onerror = function() {
+                            resolve(null);
+                        };
+                    } catch(err) {
+                        resolve(null);
+                    }
+                });
+            }
+            return dbInstancePromise;
+        }
+
+        async function idbSaveAll(storeName, items) {
+            try {
+                const db = await getPortfolioDB();
+                if (!db) return;
+                const tx = db.transaction(storeName, 'readwrite');
+                const store = tx.objectStore(storeName);
+                store.clear();
+                items.forEach(item => store.put(item));
+            } catch(e) {
+                console.warn('IDB save notice:', e);
+            }
+        }
+
+        async function idbGetAll(storeName) {
+            try {
+                const db = await getPortfolioDB();
+                if (!db) return null;
+                return new Promise((resolve) => {
+                    const tx = db.transaction(storeName, 'readonly');
+                    const store = tx.objectStore(storeName);
+                    const req = store.getAll();
+                    req.onsuccess = function() {
+                        resolve(req.result && req.result.length > 0 ? req.result : null);
+                    };
+                    req.onerror = function() {
+                        resolve(null);
+                    };
+                });
+            } catch(e) {
+                return null;
+            }
+        }
+
+        const DEFAULT_CERTS = [
+            {
+                id: 1,
+                title: "Bachelor in Arts",
+                issuer: "BZU MULTAN",
+                date: "2022",
+                image: "bzu_degree.svg",
+                description: "Associate Degree of Arts (Session Supplementary Exam 2022) from Bahauddin Zakariya University Multan-Pakistan.",
+                verificationUrl: "https://www.bzu.edu.pk"
+            },
+            {
+                id: 2,
+                title: "CCNA Routing & Switching",
+                issuer: "Cisco Systems",
+                date: "Certified 2023",
+                image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=600&q=80",
+                description: "Enterprise routing, switching, VLAN, OSPF, Access Control Lists, IPv4/IPv6 subnetting, and WAN configurations.",
+                verificationUrl: ""
+            },
+            {
+                id: 3,
+                title: "Certified Professional Assessor",
+                issuer: "NAVTTC Pakistan",
+                date: "Certified 2024",
+                image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80",
+                description: "Official Assessor Certification for evaluating vocational & technical students under Pakistan's National Vocational and Technical Training Commission guidelines.",
+                verificationUrl: ""
+            },
+            {
+                id: 4,
+                title: "DAE Civil Technology",
+                issuer: "Punjab Board of Technical Education",
+                date: "Completed 2022",
+                image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80",
+                description: "Diploma of Associate Engineering covering construction engineering, surveying, quantity surveying (BOQ), soil mechanics, and concrete quality control.",
+                verificationUrl: ""
+            }
+        ];
+
+        function getLocalCerts() {
+            try {
+                const stored = localStorage.getItem(STORAGE_CERTS_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        const merged = [...parsed];
+                        DEFAULT_CERTS.forEach(defC => {
+                            if (!merged.some(m => m.id === defC.id || (m.title === defC.title && m.issuer === defC.issuer))) {
+                                merged.push(defC);
+                            }
+                        });
+                        return merged;
+                    }
+                }
+            } catch (e) {
+                console.warn('Error reading certificates from localStorage:', e);
+            }
+            return [...DEFAULT_CERTS];
+        }
+
+        function saveLocalCerts(certs) {
+            // Save in IndexedDB (no quota limit)
+            idbSaveAll('certificates', certs);
+
+            // Also save in localStorage with quota-safe fallback
+            try {
+                localStorage.setItem(STORAGE_CERTS_KEY, JSON.stringify(certs));
+            } catch (e) {
+                try {
+                    const safeList = certs.map(c => ({
+                        ...c,
+                        image: c.image && c.image.length > 10000 ? (c.image.startsWith('data:') ? 'bzu_degree.svg' : c.image) : c.image
+                    }));
+                    localStorage.setItem(STORAGE_CERTS_KEY, JSON.stringify(safeList));
+                } catch(err) {}
+            }
+        }
+
+        function getLocalProjects() {
+            try {
+                const stored = localStorage.getItem(STORAGE_PROJECTS_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        return parsed;
+                    }
+                }
+            } catch (e) {
+                console.warn('Error reading projects from localStorage:', e);
+            }
+            return [...projectsData];
+        }
+
+        function saveLocalProjects(projs) {
+            idbSaveAll('projects', projs);
+            try {
+                localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(projs));
+            } catch (e) {
+                try {
+                    const safeList = projs.map(p => ({
+                        ...p,
+                        image: p.image && p.image.length > 10000 ? 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80' : p.image
+                    }));
+                    localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(safeList));
+                } catch(err) {}
+            }
+        }
+
         let currentFilter = 'all';
-        let certsData = [];
+        let certsData = getLocalCerts();
         let currentEditCertId = null;
 
         function renderCertificates() {
@@ -1162,6 +1338,17 @@
 
         function deleteCert(id) {
             openDeletePasswordModal(function(password) {
+                if (password !== 'Ahmad@001') {
+                    showToast("Incorrect authorization password.", "error");
+                    return;
+                }
+
+                // Immediately update local UI and localStorage
+                certsData = certsData.filter(c => c.id !== id);
+                saveLocalCerts(certsData);
+                renderCertificates();
+                closeCertLightbox();
+
                 fetch(`/api/certificates/${id}`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
@@ -1172,21 +1359,16 @@
                     try {
                         data = await res.json();
                     } catch (e) {
-                        data = { error: res.statusText || 'Failed to delete certificate.' };
+                        data = { error: res.statusText || 'Failed to delete certificate on server.' };
                     }
                     if (!res.ok) {
-                        throw new Error(data.error || 'Failed to delete certificate.');
+                        console.warn('Server delete warning:', data.error);
                     }
-                    return data;
-                })
-                .then(res => {
-                    certsData = certsData.filter(c => c.id !== id);
-                    renderCertificates();
-                    closeCertLightbox();
                     showToast("Certificate successfully deleted!", "success");
                 })
                 .catch(err => {
-                    showToast(err.message, "error");
+                    console.warn('Network issue on server delete, retained locally:', err.message);
+                    showToast("Certificate deleted from local portfolio!", "info");
                 });
             });
         }
@@ -1210,14 +1392,19 @@
         function handleAddCertSubmit(e) {
             e.preventDefault();
             
-            const title = document.getElementById('cert-title').value;
-            const issuer = document.getElementById('cert-issuer').value;
-            const date = document.getElementById('cert-date').value;
-            const url = document.getElementById('cert-url').value;
+            const title = document.getElementById('cert-title').value.trim();
+            const issuer = document.getElementById('cert-issuer').value.trim();
+            const date = document.getElementById('cert-date').value.trim();
+            const url = document.getElementById('cert-url').value.trim();
             const fileInput = document.getElementById('cert-file-input');
-            const urlInput = document.getElementById('cert-url-input').value;
-            const description = document.getElementById('cert-description').value;
+            const urlInput = document.getElementById('cert-url-input').value.trim();
+            const description = document.getElementById('cert-description').value.trim();
             const password = document.getElementById('cert-password').value;
+
+            if (password !== 'Ahmad@001') {
+                showToast("Incorrect authorization password. (Hint: Ahmad@001)", "error");
+                return;
+            }
 
             const saveCert = (imgSrc) => {
                 const payload = {
@@ -1230,6 +1417,39 @@
                     password
                 };
 
+                // Create or update locally immediately so user data is NEVER lost
+                if (currentEditCertId) {
+                    const idx = certsData.findIndex(c => c.id === currentEditCertId);
+                    if (idx !== -1) {
+                        certsData[idx] = {
+                            ...certsData[idx],
+                            title,
+                            issuer,
+                            date,
+                            verificationUrl: url,
+                            image: imgSrc,
+                            description
+                        };
+                    }
+                } else {
+                    const newLocalCert = {
+                        id: Date.now(),
+                        title,
+                        issuer,
+                        date,
+                        verificationUrl: url,
+                        image: imgSrc,
+                        description
+                    };
+                    certsData.unshift(newLocalCert);
+                }
+
+                saveLocalCerts(certsData);
+                renderCertificates();
+                closeAddCertModal();
+                showToast(currentEditCertId ? "Certificate successfully updated!" : "Certificate successfully added & saved!", "success");
+
+                // Sync with server API
                 const fetchUrl = currentEditCertId ? `/api/certificates/${currentEditCertId}` : '/api/certificates';
                 const method = currentEditCertId ? 'PUT' : 'POST';
 
@@ -1243,29 +1463,21 @@
                     try {
                         data = await res.json();
                     } catch (e) {
-                        data = { error: res.status === 413 ? 'Image is too large. Please use a smaller file or image URL.' : (res.statusText || 'Failed to save certificate.') };
+                        data = { error: res.statusText };
                     }
-                    if (!res.ok) {
-                        throw new Error(data.error || 'Failed to save certificate.');
-                    }
-                    return data;
-                })
-                .then(updatedObj => {
-                    if (currentEditCertId) {
-                        const idx = certsData.findIndex(c => c.id === currentEditCertId);
-                        if (idx !== -1) {
-                            certsData[idx] = updatedObj;
+                    if (res.ok && data && data.id) {
+                        if (!currentEditCertId) {
+                            // Update temp local ID with server assigned ID
+                            const idx = certsData.findIndex(c => c.title === title && c.issuer === issuer);
+                            if (idx !== -1) {
+                                certsData[idx].id = data.id;
+                                saveLocalCerts(certsData);
+                            }
                         }
-                        showToast("Certificate successfully updated!", "success");
-                    } else {
-                        certsData.unshift(updatedObj);
-                        showToast("Skill certificate successfully added!", "success");
                     }
-                    renderCertificates();
-                    closeAddCertModal();
                 })
                 .catch(err => {
-                    showToast(err.message, "error");
+                    console.warn('Server sync notice: Certificate stored locally in persistent storage:', err.message);
                 });
             };
 
@@ -1273,10 +1485,10 @@
                 compressAndResizeImage(fileInput.files[0], function(compressedDataUrl) {
                     saveCert(compressedDataUrl);
                 });
-            } else if (urlInput.trim() !== '') {
-                saveCert(urlInput.trim());
+            } else if (urlInput !== '') {
+                saveCert(urlInput);
             } else {
-                saveCert("https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=600&q=80");
+                saveCert("bzu_degree.svg");
             }
         }
 
@@ -1437,6 +1649,17 @@
 
          function deleteProject(id) {
             openDeletePasswordModal(function(password) {
+                if (password !== 'Ahmad@001') {
+                    showToast("Incorrect authorization password.", "error");
+                    return;
+                }
+
+                // Immediately update local UI and localStorage
+                projectsData = projectsData.filter(p => p.id !== id);
+                saveLocalProjects(projectsData);
+                renderProjects();
+                closeLightbox();
+
                 fetch(`/api/projects/${id}`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
@@ -1447,21 +1670,13 @@
                     try {
                         data = await res.json();
                     } catch (e) {
-                        data = { error: res.statusText || 'Failed to delete project.' };
+                        data = { error: res.statusText };
                     }
-                    if (!res.ok) {
-                        throw new Error(data.error || 'Failed to delete project.');
-                    }
-                    return data;
-                })
-                .then(res => {
-                    projectsData = projectsData.filter(p => p.id !== id);
-                    renderProjects();
-                    closeLightbox();
                     showToast("Project successfully deleted!", "success");
                 })
                 .catch(err => {
-                    showToast(err.message, "error");
+                    console.warn('Network issue on server project delete, retained locally:', err.message);
+                    showToast("Project deleted from local portfolio!", "info");
                 });
             });
         }
@@ -1469,13 +1684,18 @@
         function handleAddProjectSubmit(e) {
             e.preventDefault();
             
-            const title = document.getElementById('new-title').value;
+            const title = document.getElementById('new-title').value.trim();
             const category = document.getElementById('new-category').value;
-            const description = document.getElementById('new-description').value;
-            const tagsInput = document.getElementById('new-tags').value;
+            const description = document.getElementById('new-description').value.trim();
+            const tagsInput = document.getElementById('new-tags').value.trim();
             const fileInput = document.getElementById('new-file-input');
-            const urlInput = document.getElementById('new-url-input').value;
+            const urlInput = document.getElementById('new-url-input').value.trim();
             const password = document.getElementById('new-password').value;
+
+            if (password !== 'Ahmad@001') {
+                showToast("Incorrect authorization password. (Hint: Ahmad@001)", "error");
+                return;
+            }
 
             let categoryLabel = "Civil Engineering";
             if(category === 'networking') categoryLabel = "Networking & IT";
@@ -1494,6 +1714,38 @@
                     password: password
                 };
 
+                // Immediately update local UI and localStorage
+                if (currentEditProjectId) {
+                    const idx = projectsData.findIndex(p => p.id === currentEditProjectId);
+                    if (idx !== -1) {
+                        projectsData[idx] = {
+                            ...projectsData[idx],
+                            title,
+                            category,
+                            categoryLabel,
+                            image: imgSrc,
+                            description,
+                            tags: tagsArray
+                        };
+                    }
+                } else {
+                    const newLocalProj = {
+                        id: Date.now(),
+                        title,
+                        category,
+                        categoryLabel,
+                        image: imgSrc,
+                        description,
+                        tags: tagsArray
+                    };
+                    projectsData.unshift(newLocalProj);
+                }
+
+                saveLocalProjects(projectsData);
+                renderProjects();
+                closeAddProjectModal();
+                showToast(currentEditProjectId ? "Project successfully updated!" : "Project successfully added to portfolio!", "success");
+
                 const url = currentEditProjectId ? `/api/projects/${currentEditProjectId}` : '/api/projects';
                 const method = currentEditProjectId ? 'PUT' : 'POST';
 
@@ -1507,29 +1759,20 @@
                     try {
                         data = await res.json();
                     } catch (e) {
-                        data = { error: res.status === 413 ? 'Image is too large. Please use a smaller file or image URL.' : (res.statusText || 'Failed to save project.') };
+                        data = { error: res.statusText };
                     }
-                    if (!res.ok) {
-                        throw new Error(data.error || 'Failed to save project.');
-                    }
-                    return data;
-                })
-                .then(updatedObj => {
-                    if (currentEditProjectId) {
-                        const idx = projectsData.findIndex(p => p.id === currentEditProjectId);
-                        if (idx !== -1) {
-                            projectsData[idx] = updatedObj;
+                    if (res.ok && data && data.id) {
+                        if (!currentEditProjectId) {
+                            const idx = projectsData.findIndex(p => p.title === title && p.category === category);
+                            if (idx !== -1) {
+                                projectsData[idx].id = data.id;
+                                saveLocalProjects(projectsData);
+                            }
                         }
-                        showToast("Project successfully updated!", "success");
-                    } else {
-                        projectsData.unshift(updatedObj);
-                        showToast("Project successfully added to portfolio!", "success");
                     }
-                    renderProjects();
-                    closeAddProjectModal();
                 })
                 .catch(err => {
-                    showToast(err.message, "error");
+                    console.warn('Server sync notice: Project saved in local storage:', err.message);
                 });
             };
 
@@ -1537,8 +1780,8 @@
                 compressAndResizeImage(fileInput.files[0], function(compressedDataUrl) {
                     saveProject(compressedDataUrl);
                 });
-            } else if (urlInput.trim() !== '') {
-                saveProject(urlInput.trim());
+            } else if (urlInput !== '') {
+                saveProject(urlInput);
             } else {
                 saveProject("https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80");
             }
@@ -1728,26 +1971,83 @@
                 closeDeletePasswordModal();
             });
 
+            // Immediately render from local persistent storage & defaults
+            projectsData = getLocalProjects();
+            renderProjects();
+
+            certsData = getLocalCerts();
+            renderCertificates();
+
+            // Asynchronously check IndexedDB for any custom certificates or photos
+            idbGetAll('certificates').then(idbCerts => {
+                if (Array.isArray(idbCerts) && idbCerts.length > 0) {
+                    const merged = [...certsData];
+                    idbCerts.forEach(c => {
+                        const idx = merged.findIndex(m => m.id === c.id || (m.title.toLowerCase() === c.title.toLowerCase() && m.issuer.toLowerCase() === c.issuer.toLowerCase()));
+                        if (idx === -1) {
+                            merged.push(c);
+                        } else if (c.image && c.image.length > 100) {
+                            merged[idx] = c;
+                        }
+                    });
+                    certsData = merged;
+                    renderCertificates();
+                }
+            });
+
+            idbGetAll('projects').then(idbProjs => {
+                if (Array.isArray(idbProjs) && idbProjs.length > 0) {
+                    const merged = [...projectsData];
+                    idbProjs.forEach(p => {
+                        const idx = merged.findIndex(m => m.id === p.id || m.title.toLowerCase() === p.title.toLowerCase());
+                        if (idx === -1) {
+                            merged.push(p);
+                        } else if (p.image && p.image.length > 100) {
+                            merged[idx] = p;
+                        }
+                    });
+                    projectsData = merged;
+                    renderProjects();
+                }
+            });
+
+            // Background server synchronization
             fetch('/api/projects')
                 .then(res => res.json())
                 .then(data => {
-                    projectsData = data;
-                    renderProjects();
+                    if (Array.isArray(data) && data.length > 0) {
+                        const merged = [...data];
+                        projectsData.forEach(localP => {
+                            if (!merged.some(m => m.id === localP.id || m.title === localP.title)) {
+                                merged.push(localP);
+                            }
+                        });
+                        projectsData = merged;
+                        saveLocalProjects(projectsData);
+                        renderProjects();
+                    }
                 })
                 .catch(err => {
-                    console.error('Failed to load projects from server:', err);
-                    renderProjects();
+                    console.warn('Using local cached projects:', err.message);
                 });
 
             fetch('/api/certificates')
                 .then(res => res.json())
                 .then(data => {
-                    certsData = data;
-                    renderCertificates();
+                    if (Array.isArray(data) && data.length > 0) {
+                        const merged = [...data];
+                        certsData.forEach(localC => {
+                            if (!merged.some(m => m.id === localC.id || (m.title === localC.title && m.issuer === localC.issuer))) {
+                                merged.push(localC);
+                            }
+                        });
+                        certsData = merged;
+                        saveLocalCerts(certsData);
+                        renderCertificates();
+                    }
                 })
                 .catch(err => {
-                    console.error('Failed to load certificates from server:', err);
-                    renderCertificates();
+                    console.warn('Using local cached certificates:', err.message);
                 });
             
             // Set Base64 profile pictures if available
@@ -1759,5 +2059,6 @@
             }
         });
     </script>
+    <script src="script.js"></script>
 </body>
 </html>

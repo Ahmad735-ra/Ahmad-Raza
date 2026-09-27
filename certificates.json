@@ -1,0 +1,38 @@
+[
+  {
+    "id": 2,
+    "title": "CCNA Routing & Switching",
+    "issuer": "Cisco Systems",
+    "date": "Certified 2023",
+    "image": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=600&q=80",
+    "description": "Enterprise routing, switching, VLAN, OSPF, Access Control Lists, IPv4/IPv6 subnetting, and WAN configurations.",
+    "verificationUrl": ""
+  },
+  {
+    "id": 3,
+    "title": "Certified Professional Assessor",
+    "issuer": "NAVTTC Pakistan",
+    "date": "Certified 2024",
+    "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80",
+    "description": "Official Assessor Certification for evaluating vocational & technical students under Pakistan's National Vocational and Technical Training Commission guidelines.",
+    "verificationUrl": ""
+  },
+  {
+    "id": 4,
+    "title": "DAE Civil Technology",
+    "issuer": "Punjab Board of Technical Education",
+    "date": "Completed 2022",
+    "image": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80",
+    "description": "Diploma of Associate Engineering covering construction engineering, surveying, quantity surveying (BOQ), soil mechanics, and concrete quality control.",
+    "verificationUrl": ""
+  },
+  {
+    "id": 1,
+    "title": "Bachelor in Arts",
+    "issuer": "BZU MULTAN",
+    "date": "2022",
+    "image": "bzu_degree.svg",
+    "description": "Associate Degree of Arts (Session Supplementary Exam 2022) from Bahauddin Zakariya University Multan-Pakistan.",
+    "verificationUrl": "https://www.bzu.edu.pk"
+  }
+]

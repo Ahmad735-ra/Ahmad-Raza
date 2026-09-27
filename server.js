@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import admin from 'firebase-admin';
+import { getFirestore } from 'firebase-admin/firestore';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,15 +20,44 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 const MESSAGES_FILE = path.join(__dirname, 'contact_messages.json');
 const PROJECTS_FILE = path.join(__dirname, 'projects.json');
 const CERTIFICATES_FILE = path.join(__dirname, 'certificates.json');
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+// Convert base64 data URIs into static image files on disk
+function saveBase64Image(dataUri, prefix) {
+  if (!dataUri || typeof dataUri !== 'string' || !dataUri.startsWith('data:image/')) {
+    return dataUri;
+  }
+  try {
+    const matches = dataUri.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      return dataUri;
+    }
+    const ext = matches[1].replace('jpeg', 'jpg');
+    const base64Data = matches[2];
+    const filename = `${prefix}_${Date.now()}.${ext}`;
+    const filePath = path.join(UPLOADS_DIR, filename);
+    fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+    console.log(`Saved uploaded image to: /uploads/${filename}`);
+    return `/uploads/${filename}`;
+  } catch (err) {
+    console.error('Error saving base64 image to file:', err);
+    return dataUri;
+  }
+}
 
 // Initialize Firebase Admin with named database
 let dbInstance = null;
 try {
   const firebaseConfig = JSON.parse(fs.readFileSync(path.join(__dirname, 'firebase-applet-config.json'), 'utf8'));
-  admin.initializeApp({
+  const adminApp = admin.initializeApp({
     projectId: firebaseConfig.projectId
   });
-  dbInstance = admin.firestore(firebaseConfig.firestoreDatabaseId || undefined);
+  dbInstance = firebaseConfig.firestoreDatabaseId 
+    ? getFirestore(adminApp, firebaseConfig.firestoreDatabaseId) 
+    : getFirestore(adminApp);
   console.log('Firebase Admin initialized successfully with databaseId:', firebaseConfig.firestoreDatabaseId);
 } catch (err) {
   console.error('Warning: Failed to initialize Firebase Admin, using local filesystem fallback:', err.message);
@@ -36,6 +66,15 @@ try {
 const INITIAL_CERTIFICATES = [
   {
     id: 1,
+    title: "Bachelor in Arts",
+    issuer: "BZU MULTAN",
+    date: "2022",
+    image: "bzu_degree.svg",
+    description: "Associate Degree of Arts (Session Supplementary Exam 2022) from Bahauddin Zakariya University Multan-Pakistan.",
+    verificationUrl: "https://www.bzu.edu.pk"
+  },
+  {
+    id: 2,
     title: "CCNA Routing & Switching",
     issuer: "Cisco Systems",
     date: "Certified 2023",
@@ -44,7 +83,7 @@ const INITIAL_CERTIFICATES = [
     verificationUrl: ""
   },
   {
-    id: 2,
+    id: 3,
     title: "Certified Professional Assessor",
     issuer: "NAVTTC Pakistan",
     date: "Certified 2024",
@@ -53,7 +92,7 @@ const INITIAL_CERTIFICATES = [
     verificationUrl: ""
   },
   {
-    id: 3,
+    id: 4,
     title: "DAE Civil Technology",
     issuer: "Punjab Board of Technical Education",
     date: "Completed 2022",
@@ -126,15 +165,32 @@ let messagesCache = null;
 
 // File fallback helper methods
 function loadCertificatesFromFile() {
+  let certs = [];
   try {
     if (fs.existsSync(CERTIFICATES_FILE)) {
       const data = fs.readFileSync(CERTIFICATES_FILE, 'utf8');
-      return JSON.parse(data || '[]');
+      certs = JSON.parse(data || '[]');
     }
   } catch (err) {
     console.error('Error loading certificates from file:', err);
   }
-  return [...INITIAL_CERTIFICATES];
+
+  // Ensure all initial certificates are present (do not lose default or user added certs)
+  if (!Array.isArray(certs) || certs.length === 0) {
+    certs = [...INITIAL_CERTIFICATES];
+  } else {
+    for (const initCert of INITIAL_CERTIFICATES) {
+      if (!certs.some(c => c.id === initCert.id || (c.title === initCert.title && c.issuer === initCert.issuer))) {
+        certs.push(initCert);
+      }
+    }
+  }
+  try {
+    fs.writeFileSync(CERTIFICATES_FILE, JSON.stringify(certs, null, 2));
+  } catch (err) {
+    console.warn('Warning: Could not save certificates file:', err.message);
+  }
+  return certs;
 }
 
 function saveCertificatesToFile() {
@@ -146,15 +202,31 @@ function saveCertificatesToFile() {
 }
 
 function loadProjectsFromFile() {
+  let projs = [];
   try {
     if (fs.existsSync(PROJECTS_FILE)) {
       const data = fs.readFileSync(PROJECTS_FILE, 'utf8');
-      return JSON.parse(data || '[]');
+      projs = JSON.parse(data || '[]');
     }
   } catch (err) {
     console.error('Error loading projects from file:', err);
   }
-  return [...INITIAL_PROJECTS];
+
+  if (!Array.isArray(projs) || projs.length === 0) {
+    projs = [...INITIAL_PROJECTS];
+  } else {
+    for (const initProj of INITIAL_PROJECTS) {
+      if (!projs.some(p => p.id === initProj.id || p.title === initProj.title)) {
+        projs.push(initProj);
+      }
+    }
+  }
+  try {
+    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projs, null, 2));
+  } catch (err) {
+    console.warn('Warning: Could not save projects file:', err.message);
+  }
+  return projs;
 }
 
 function saveProjectsToFile() {
@@ -187,57 +259,78 @@ function saveMessagesToFile() {
 
 // Startup seeding and cache load
 async function initializeData() {
+  // Always load from local persistent storage first
+  certificatesCache = loadCertificatesFromFile();
+  projectsCache = loadProjectsFromFile();
+  messagesCache = loadMessagesFromFile();
+
   if (dbInstance) {
     try {
-      // 1. Load/seed Certificates
+      // 1. Load/seed Certificates with Firestore if available
       const certSnap = await dbInstance.collection('certificates').get();
       if (certSnap.empty) {
         console.log('Seeding initial certificates to Firestore...');
-        for (const cert of INITIAL_CERTIFICATES) {
+        for (const cert of certificatesCache) {
           await dbInstance.collection('certificates').doc(cert.id.toString()).set(cert);
         }
-        certificatesCache = [...INITIAL_CERTIFICATES];
       } else {
-        certificatesCache = [];
+        const firestoreCerts = [];
         certSnap.forEach(doc => {
-          certificatesCache.push(doc.data());
+          firestoreCerts.push(doc.data());
         });
-        certificatesCache.sort((a, b) => b.id - a.id);
+        if (firestoreCerts.length > 0) {
+          // Merge without overwriting local custom certs
+          const merged = [...firestoreCerts];
+          for (const localC of certificatesCache) {
+            if (!merged.some(m => m.id === localC.id || (m.title === localC.title && m.issuer === localC.issuer))) {
+              merged.push(localC);
+            }
+          }
+          merged.sort((a, b) => b.id - a.id);
+          certificatesCache = merged;
+          saveCertificatesToFile();
+        }
       }
 
-      // 2. Load/seed Projects
+      // 2. Load/seed Projects with Firestore if available
       const projSnap = await dbInstance.collection('projects').get();
       if (projSnap.empty) {
         console.log('Seeding initial projects to Firestore...');
-        for (const proj of INITIAL_PROJECTS) {
+        for (const proj of projectsCache) {
           await dbInstance.collection('projects').doc(proj.id.toString()).set(proj);
         }
-        projectsCache = [...INITIAL_PROJECTS];
       } else {
-        projectsCache = [];
+        const firestoreProjects = [];
         projSnap.forEach(doc => {
-          projectsCache.push(doc.data());
+          firestoreProjects.push(doc.data());
         });
-        projectsCache.sort((a, b) => b.id - a.id);
+        if (firestoreProjects.length > 0) {
+          const mergedProj = [...firestoreProjects];
+          for (const localP of projectsCache) {
+            if (!mergedProj.some(m => m.id === localP.id || m.title === localP.title)) {
+              mergedProj.push(localP);
+            }
+          }
+          mergedProj.sort((a, b) => b.id - a.id);
+          projectsCache = mergedProj;
+          saveProjectsToFile();
+        }
       }
 
       // 3. Load Messages
       const msgSnap = await dbInstance.collection('contact_messages').get();
-      messagesCache = [];
+      const fsMessages = [];
       msgSnap.forEach(doc => {
-        messagesCache.push(doc.data());
+        fsMessages.push(doc.data());
       });
-      console.log('Firestore connection and sync loaded successfully.');
+      if (fsMessages.length > 0) {
+        messagesCache = fsMessages;
+        saveMessagesToFile();
+      }
+      console.log('Firestore connection and sync checked successfully.');
     } catch (err) {
-      console.error('Error loading data from Firestore on startup, falling back to local files:', err);
-      certificatesCache = loadCertificatesFromFile();
-      projectsCache = loadProjectsFromFile();
-      messagesCache = loadMessagesFromFile();
+      console.warn('Note: Operating with robust local persistent cache (Firestore restricted):', err.message);
     }
-  } else {
-    certificatesCache = loadCertificatesFromFile();
-    projectsCache = loadProjectsFromFile();
-    messagesCache = loadMessagesFromFile();
   }
 }
 
@@ -261,28 +354,29 @@ app.post('/api/certificates', async (req, res) => {
     return res.status(400).json({ error: 'Title, issuer, and date are required.' });
   }
 
+  const savedImage = saveBase64Image(image, 'cert');
   const newCertificate = {
     id: Date.now(),
     title,
     issuer,
     date,
-    image: image || "https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=600&q=80",
+    image: savedImage || "bzu_degree.svg",
     description: description || "",
     verificationUrl: verificationUrl || ""
   };
 
-  try {
-    if (dbInstance) {
+  if (!certificatesCache) certificatesCache = [];
+  certificatesCache.unshift(newCertificate);
+  saveCertificatesToFile();
+
+  if (dbInstance) {
+    try {
       await dbInstance.collection('certificates').doc(newCertificate.id.toString()).set(newCertificate);
+    } catch (err) {
+      console.warn('Warning: Could not sync certificate to Firestore, saved locally:', err.message);
     }
-    if (!certificatesCache) certificatesCache = [];
-    certificatesCache.unshift(newCertificate);
-    saveCertificatesToFile();
-    return res.json(newCertificate);
-  } catch (err) {
-    console.error('Error saving new certificate:', err);
-    return res.status(500).json({ error: 'Failed to save new certificate.' });
   }
+  return res.json(newCertificate);
 });
 
 app.put('/api/certificates/:id', async (req, res) => {
@@ -297,35 +391,36 @@ app.put('/api/certificates/:id', async (req, res) => {
     return res.status(400).json({ error: 'Title, issuer, and date are required.' });
   }
 
-  try {
-    if (!certificatesCache) {
-      await initializeData();
-    }
-
-    const index = certificatesCache.findIndex(c => c.id === certId);
-    if (index === -1) {
-      return res.status(404).json({ error: 'Certificate not found.' });
-    }
-
-    certificatesCache[index] = {
-      ...certificatesCache[index],
-      title,
-      issuer,
-      date,
-      image: image || certificatesCache[index].image,
-      description: description || "",
-      verificationUrl: verificationUrl || ""
-    };
-
-    if (dbInstance) {
-      await dbInstance.collection('certificates').doc(certId.toString()).set(certificatesCache[index]);
-    }
-    saveCertificatesToFile();
-    return res.json(certificatesCache[index]);
-  } catch (err) {
-    console.error('Error updating certificate:', err);
-    return res.status(500).json({ error: 'Failed to update certificate.' });
+  if (!certificatesCache) {
+    await initializeData();
   }
+
+  const index = certificatesCache.findIndex(c => c.id === certId);
+  if (index === -1) {
+    return res.status(404).json({ error: 'Certificate not found.' });
+  }
+
+  const savedImage = saveBase64Image(image, 'cert');
+  certificatesCache[index] = {
+    ...certificatesCache[index],
+    title,
+    issuer,
+    date,
+    image: savedImage || certificatesCache[index].image,
+    description: description || "",
+    verificationUrl: verificationUrl || ""
+  };
+
+  saveCertificatesToFile();
+
+  if (dbInstance) {
+    try {
+      await dbInstance.collection('certificates').doc(certId.toString()).set(certificatesCache[index]);
+    } catch (err) {
+      console.warn('Warning: Could not sync certificate update to Firestore, updated locally:', err.message);
+    }
+  }
+  return res.json(certificatesCache[index]);
 });
 
 app.delete('/api/certificates/:id', async (req, res) => {
@@ -336,26 +431,26 @@ app.delete('/api/certificates/:id', async (req, res) => {
     return res.status(403).json({ error: 'Incorrect authorization password. Certificate cannot be deleted.' });
   }
 
-  try {
-    if (!certificatesCache) {
-      await initializeData();
-    }
-
-    const index = certificatesCache.findIndex(c => c.id === certId);
-    if (index === -1) {
-      return res.status(404).json({ error: 'Certificate not found.' });
-    }
-
-    certificatesCache.splice(index, 1);
-    if (dbInstance) {
-      await dbInstance.collection('certificates').doc(certId.toString()).delete();
-    }
-    saveCertificatesToFile();
-    return res.json({ success: true, id: certId });
-  } catch (err) {
-    console.error('Error deleting certificate:', err);
-    return res.status(500).json({ error: 'Failed to delete certificate.' });
+  if (!certificatesCache) {
+    await initializeData();
   }
+
+  const index = certificatesCache.findIndex(c => c.id === certId);
+  if (index === -1) {
+    return res.status(404).json({ error: 'Certificate not found.' });
+  }
+
+  certificatesCache.splice(index, 1);
+  saveCertificatesToFile();
+
+  if (dbInstance) {
+    try {
+      await dbInstance.collection('certificates').doc(certId.toString()).delete();
+    } catch (err) {
+      console.warn('Warning: Could not sync certificate deletion to Firestore, deleted locally:', err.message);
+    }
+  }
+  return res.json({ success: true, id: certId });
 });
 
 app.get('/api/projects', async (req, res) => {
@@ -376,28 +471,29 @@ app.post('/api/projects', async (req, res) => {
     return res.status(400).json({ error: 'Title, category, and description are required.' });
   }
 
+  const savedImage = saveBase64Image(image, 'proj');
   const newProject = {
     id: Date.now(),
     title,
     category,
     categoryLabel: categoryLabel || (category === 'civil' ? 'Civil Engineering' : category === 'networking' ? 'Networking & IT' : 'Other Projects'),
-    image: image || "https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80",
+    image: savedImage || "https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80",
     description,
     tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()) : [])
   };
 
-  try {
-    if (dbInstance) {
+  if (!projectsCache) projectsCache = [];
+  projectsCache.unshift(newProject);
+  saveProjectsToFile();
+
+  if (dbInstance) {
+    try {
       await dbInstance.collection('projects').doc(newProject.id.toString()).set(newProject);
+    } catch (err) {
+      console.warn('Warning: Could not sync project to Firestore, saved locally:', err.message);
     }
-    if (!projectsCache) projectsCache = [];
-    projectsCache.unshift(newProject);
-    saveProjectsToFile();
-    return res.json(newProject);
-  } catch (err) {
-    console.error('Error saving new project:', err);
-    return res.status(500).json({ error: 'Failed to save new project.' });
   }
+  return res.json(newProject);
 });
 
 app.put('/api/projects/:id', async (req, res) => {
@@ -412,35 +508,36 @@ app.put('/api/projects/:id', async (req, res) => {
     return res.status(400).json({ error: 'Title, category, and description are required.' });
   }
 
-  try {
-    if (!projectsCache) {
-      await initializeData();
-    }
-
-    const index = projectsCache.findIndex(p => p.id === projectId);
-    if (index === -1) {
-      return res.status(404).json({ error: 'Project not found.' });
-    }
-
-    projectsCache[index] = {
-      ...projectsCache[index],
-      title,
-      category,
-      categoryLabel: categoryLabel || (category === 'civil' ? 'Civil Engineering' : category === 'networking' ? 'Networking & IT' : 'Other Projects'),
-      image: image || projectsCache[index].image,
-      description,
-      tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()) : [])
-    };
-
-    if (dbInstance) {
-      await dbInstance.collection('projects').doc(projectId.toString()).set(projectsCache[index]);
-    }
-    saveProjectsToFile();
-    return res.json(projectsCache[index]);
-  } catch (err) {
-    console.error('Error updating project:', err);
-    return res.status(500).json({ error: 'Failed to update project.' });
+  if (!projectsCache) {
+    await initializeData();
   }
+
+  const index = projectsCache.findIndex(p => p.id === projectId);
+  if (index === -1) {
+    return res.status(404).json({ error: 'Project not found.' });
+  }
+
+  const savedImage = saveBase64Image(image, 'proj');
+  projectsCache[index] = {
+    ...projectsCache[index],
+    title,
+    category,
+    categoryLabel: categoryLabel || (category === 'civil' ? 'Civil Engineering' : category === 'networking' ? 'Networking & IT' : 'Other Projects'),
+    image: savedImage || projectsCache[index].image,
+    description,
+    tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()) : [])
+  };
+
+  saveProjectsToFile();
+
+  if (dbInstance) {
+    try {
+      await dbInstance.collection('projects').doc(projectId.toString()).set(projectsCache[index]);
+    } catch (err) {
+      console.warn('Warning: Could not sync project update to Firestore, updated locally:', err.message);
+    }
+  }
+  return res.json(projectsCache[index]);
 });
 
 app.delete('/api/projects/:id', async (req, res) => {
@@ -451,26 +548,26 @@ app.delete('/api/projects/:id', async (req, res) => {
     return res.status(403).json({ error: 'Incorrect authorization password. Project cannot be deleted.' });
   }
 
-  try {
-    if (!projectsCache) {
-      await initializeData();
-    }
-
-    const index = projectsCache.findIndex(p => p.id === projectId);
-    if (index === -1) {
-      return res.status(404).json({ error: 'Project not found.' });
-    }
-
-    projectsCache.splice(index, 1);
-    if (dbInstance) {
-      await dbInstance.collection('projects').doc(projectId.toString()).delete();
-    }
-    saveProjectsToFile();
-    return res.json({ success: true, id: projectId });
-  } catch (err) {
-    console.error('Error deleting project:', err);
-    return res.status(500).json({ error: 'Failed to delete project.' });
+  if (!projectsCache) {
+    await initializeData();
   }
+
+  const index = projectsCache.findIndex(p => p.id === projectId);
+  if (index === -1) {
+    return res.status(404).json({ error: 'Project not found.' });
+  }
+
+  projectsCache.splice(index, 1);
+  saveProjectsToFile();
+
+  if (dbInstance) {
+    try {
+      await dbInstance.collection('projects').doc(projectId.toString()).delete();
+    } catch (err) {
+      console.warn('Warning: Could not sync project deletion to Firestore, deleted locally:', err.message);
+    }
+  }
+  return res.json({ success: true, id: projectId });
 });
 
 app.post('/api/contact', async (req, res) => {

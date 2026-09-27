@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "title": "Architectural 3D Model & Site Supervision",
+    "category": "civil",
+    "categoryLabel": "Civil Engineering",
+    "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+    "description": "Complete AutoCAD drafting, 3D structural elevation render, and active site supervision for modern multi-story building project.",
+    "tags": ["AutoCAD 3D", "Site Supervision", "Civil Engineering"]
+  },
+  {
+    "id": 2,
+    "title": "Cisco Multi-Site Enterprise Routing Topology",
+    "category": "networking",
+    "categoryLabel": "Networking & IT",
+    "image": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80",
+    "description": "Design and deployment of multi-VLAN topology featuring OSPF routing, DHCP servers, and redundant link failovers using Packet Tracer.",
+    "tags": ["CCNA", "Packet Tracer", "OSPF", "VLAN"]
+  },
+  {
+    "id": 3,
+    "title": "High-Rise Highway & Flyover Construction",
+    "category": "civil",
+    "categoryLabel": "Civil Engineering",
+    "image": "https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80",
+    "description": "Structural surveying, concrete quality inspection, and BOQ estimation for urban highway infrastructure extension.",
+    "tags": ["BOQ", "Quality Control", "Surveying"]
+  },
+  {
+    "id": 4,
+    "title": "Server Rack & Network Infrastructure Setup",
+    "category": "networking",
+    "categoryLabel": "Networking & IT",
+    "image": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80",
+    "description": "Enterprise physical server rack organization, patch panel termination, Wireshark traffic analysis, and firewall hardening.",
+    "tags": ["Patch Panels", "Wireshark", "Network Security"]
+  },
+  {
+    "id": 5,
+    "title": "Rocky Linux Web & Enterprise Domain Server",
+    "category": "networking",
+    "categoryLabel": "Networking & IT",
+    "image": "https://images.unsplash.com/photo-1629654297299-c8506221ca97?auto=format&fit=crop&w=800&q=80",
+    "description": "Hardened Linux server configuration with active SSH keys, UFW rules, Apache Web Server, and custom Bash automation scripts.",
+    "tags": ["Rocky Linux", "SysAdmin", "Bash Scripting"]
+  },
+  {
+    "id": 6,
+    "title": "Mobile App & UI Engineering Wireframes",
+    "category": "other",
+    "categoryLabel": "Other Projects",
+    "image": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80",
+    "description": "Interface layout drafting and prototype workflow for engineering site data management mobile application.",
+    "tags": ["UI Design", "Workflow", "Prototypes"]
+  }
+]
